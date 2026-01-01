@@ -35,7 +35,7 @@ export class QCController {
   constructor(private readonly qcService: QCService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new QC inspection" })
   @ApiResponse({
     status: 201,
@@ -64,7 +64,7 @@ export class QCController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all QC inspections" })
   @ApiResponse({
     status: 200,
@@ -84,7 +84,7 @@ export class QCController {
   }
 
   @Get("pending")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get pending QC inspections" })
   @ApiResponse({
     status: 200,
@@ -104,7 +104,7 @@ export class QCController {
   }
 
   @Get("count/pending")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get count of pending QC inspections" })
   @ApiResponse({ status: 200, description: "Count retrieved successfully" })
   async getPendingCount(@Req() req: RequestWithUser) {
@@ -121,7 +121,7 @@ export class QCController {
   }
 
   @Get("stats")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get QC inspection statistics" })
   @ApiResponse({
     status: 200,
@@ -141,7 +141,7 @@ export class QCController {
   }
 
   @Get("status/:status")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get QC inspections by status" })
   @ApiQuery({
     name: "status",
@@ -168,7 +168,7 @@ export class QCController {
   }
 
   @Get("material/:materialId")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get QC inspections by material" })
   @ApiResponse({
     status: 200,
@@ -194,7 +194,7 @@ export class QCController {
   }
 
   @Get("vendor/:vendorId")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get QC inspections by vendor" })
   @ApiResponse({
     status: 200,
@@ -220,7 +220,7 @@ export class QCController {
   }
 
   @Get("date-range")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get QC inspections by date range" })
   @ApiQuery({ name: "startDate", type: String, example: "2024-01-01" })
   @ApiQuery({ name: "endDate", type: String, example: "2024-12-31" })
@@ -250,7 +250,7 @@ export class QCController {
   }
 
   @Get(":id/report")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.EXPORT}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Export}`)
   @ApiOperation({
     summary: "Generate inspection report for a completed QC inspection",
   })
@@ -277,7 +277,7 @@ export class QCController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a QC inspection by ID" })
   @ApiResponse({
     status: 200,
@@ -301,7 +301,7 @@ export class QCController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a QC inspection" })
   @ApiResponse({
     status: 200,
@@ -335,7 +335,7 @@ export class QCController {
   }
 
   @Put(":id/complete")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.APPROVE}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Approve}`)
   @ApiOperation({ summary: "Complete a QC inspection with pass/fail result" })
   @ApiResponse({
     status: 200,
@@ -370,7 +370,7 @@ export class QCController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.QC}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.QC}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a QC inspection" })
   @ApiResponse({
     status: 200,

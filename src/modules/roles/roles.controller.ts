@@ -29,7 +29,7 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new role" })
   @ApiResponse({ status: 201, description: "Role created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -51,7 +51,7 @@ export class RolesController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all roles" })
   @ApiResponse({ status: 200, description: "Roles retrieved successfully" })
   async findAll(@Req() req: RequestWithUser) {
@@ -68,7 +68,7 @@ export class RolesController {
   }
 
   @Get("available-permissions")
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get available permissions based on tenant plan" })
   @ApiResponse({
     status: 200,
@@ -90,7 +90,7 @@ export class RolesController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a role by ID" })
   @ApiResponse({ status: 200, description: "Role retrieved successfully" })
   @ApiResponse({ status: 404, description: "Role not found" })
@@ -111,7 +111,7 @@ export class RolesController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a role" })
   @ApiResponse({ status: 200, description: "Role updated successfully" })
   @ApiResponse({ status: 404, description: "Role not found" })
@@ -138,7 +138,7 @@ export class RolesController {
   }
 
   @Put(":id/permissions")
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Assign permissions to a role" })
   @ApiResponse({
     status: 200,
@@ -172,7 +172,7 @@ export class RolesController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.ROLES}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Role}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a role" })
   @ApiResponse({ status: 200, description: "Role deleted successfully" })
   @ApiResponse({ status: 404, description: "Role not found" })

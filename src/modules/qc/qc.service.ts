@@ -298,6 +298,19 @@ export class QCService {
     );
     const driverName = driverNameValue?.textValue || "";
 
+    // Get weight values from dynamic field values (gross_weight, tare_weight)
+    const grossWeightValue = fieldValues.find(
+      (fv) => fv.fieldConfig?.fieldName === "gross_weight"
+    );
+    const tareWeightValue = fieldValues.find(
+      (fv) => fv.fieldConfig?.fieldName === "tare_weight"
+    );
+
+    const grossWeight = grossWeightValue?.numberValue || null;
+    const tareWeight = tareWeightValue?.numberValue || null;
+    // net_weight is a static field in GRN entity
+    const netWeight = inspection.grn.netWeight || null;
+
     const today = new Date();
     const reportNumber = `RPT-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-${inspection.inspectionNumber}`;
 
@@ -308,9 +321,9 @@ export class QCService {
         grnNumber: inspection.grn.grnNumber,
         truckNumber: inspection.grn.truckNumber,
         driverName: driverName,
-        grossWeight: inspection.grn.grossWeight,
-        tareWeight: inspection.grn.tareWeight,
-        netWeight: inspection.grn.netWeight,
+        grossWeight: grossWeight,
+        tareWeight: tareWeight,
+        netWeight: netWeight,
         createdAt: inspection.grn.createdAt,
       },
       vendor: {

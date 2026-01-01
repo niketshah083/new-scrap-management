@@ -2,7 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   IsString,
   IsOptional,
-  MaxLength,
   IsNumber,
   IsArray,
   IsEnum,
@@ -22,128 +21,80 @@ export enum ApprovalStatus {
 
 // Field value DTO for dynamic fields
 export class FieldValueDto {
-  @ApiProperty({ description: "Field config ID", example: 1 })
+  @ApiProperty({ description: "Field config ID", example: 1, required: false })
   @IsNumber()
-  fieldConfigId: number;
+  @IsOptional()
+  fieldConfigId?: number;
 
-  @ApiProperty({ description: "Field value", example: "some value" })
+  @ApiProperty({
+    description: "Field name",
+    example: "gross_weight",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  fieldName?: string;
+
+  @ApiProperty({ description: "Field value", example: "5000.5" })
   @IsString()
   value: string;
 }
 
-// Step 2 - Initial Weighing
+/**
+ * Step 2 - Initial Weighing
+ * Dynamic fields: gross_weight (required), gross_weight_image (optional, max 3 files)
+ */
 export class UpdateGRNStep2Dto {
-  @ApiProperty({ description: "Gross weight in KG", example: 5000.5 })
-  @IsNumber()
-  grossWeight: number;
-
   @ApiProperty({
-    description: "Gross weight image URL",
-    example: "https://s3.../image.jpg",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  grossWeightImage?: string;
-
-  @ApiProperty({
-    description: "Dynamic field values",
+    description:
+      "Dynamic field values for Step 2 (gross_weight, gross_weight_image)",
     type: [FieldValueDto],
-    required: false,
+    required: true,
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FieldValueDto)
-  @IsOptional()
-  fieldValues?: FieldValueDto[];
+  fieldValues: FieldValueDto[];
 }
 
-// Step 3 - Unloading
+/**
+ * Step 3 - Unloading
+ * Dynamic fields: driver_photo, driver_licence_image (max 2), unloading_photos (max 3), unloading_notes, material_count
+ */
 export class UpdateGRNStep3Dto {
   @ApiProperty({
-    description: "Driver photo URL",
-    example: "https://s3.../photo.jpg",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  driverPhoto?: string;
-
-  @ApiProperty({
-    description: "Driver licence image URL",
-    example: "https://s3.../licence.jpg",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  driverLicenceImage?: string;
-
-  @ApiProperty({
-    description: "Unloading photos (minimum 3)",
-    example: ["url1", "url2", "url3"],
-  })
-  @IsArray()
-  @IsString({ each: true })
-  unloadingPhotos: string[];
-
-  @ApiProperty({
-    description: "Unloading notes",
-    example: "Material unloaded successfully",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  unloadingNotes?: string;
-
-  @ApiProperty({
-    description: "Dynamic field values",
+    description: "Dynamic field values for Step 3",
     type: [FieldValueDto],
-    required: false,
+    required: true,
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FieldValueDto)
-  @IsOptional()
-  fieldValues?: FieldValueDto[];
+  fieldValues: FieldValueDto[];
 }
 
-// Step 4 - Final Weighing
+/**
+ * Step 4 - Final Weighing
+ * Dynamic fields: tare_weight, tare_weight_image (max 3), net_weight (auto-calculated)
+ */
 export class UpdateGRNStep4Dto {
-  @ApiProperty({ description: "Tare weight in KG", example: 2000.0 })
-  @IsNumber()
-  tareWeight: number;
-
   @ApiProperty({
-    description: "Tare weight image URL",
-    example: "https://s3.../image.jpg",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  tareWeightImage?: string;
-
-  @ApiProperty({ description: "Material count", example: 100, required: false })
-  @IsNumber()
-  @IsOptional()
-  materialCount?: number;
-
-  @ApiProperty({
-    description: "Dynamic field values",
+    description:
+      "Dynamic field values for Step 4 (tare_weight, tare_weight_image)",
     type: [FieldValueDto],
-    required: false,
+    required: true,
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FieldValueDto)
-  @IsOptional()
-  fieldValues?: FieldValueDto[];
+  fieldValues: FieldValueDto[];
 }
 
-// Step 5 - Supervisor Review
+/**
+ * Step 5 - Supervisor Review
+ * Static fields: verificationStatus, approvalStatus, rejectionReason
+ * No dynamic fields as of now
+ */
 export class UpdateGRNStep5Dto {
   @ApiProperty({
     description: "Verification status",
@@ -162,15 +113,6 @@ export class UpdateGRNStep5Dto {
   approvalStatus: ApprovalStatus;
 
   @ApiProperty({
-    description: "Review notes",
-    example: "All documents verified",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  reviewNotes?: string;
-
-  @ApiProperty({
     description: "Rejection reason (required if rejected)",
     example: "Weight mismatch",
     required: false,
@@ -180,7 +122,7 @@ export class UpdateGRNStep5Dto {
   rejectionReason?: string;
 
   @ApiProperty({
-    description: "Dynamic field values",
+    description: "Dynamic field values (optional for Step 5)",
     type: [FieldValueDto],
     required: false,
   })

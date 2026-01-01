@@ -1,44 +1,43 @@
 export enum ModuleCode {
-  DASHBOARD = "DASHBOARD",
-  VENDORS = "VENDORS",
-  MATERIALS = "MATERIALS",
-  PURCHASE_ORDERS = "PURCHASE_ORDERS",
+  // Core modules - using PascalCase to match frontend permission checks
+  Dashboard = "Dashboard",
+  Vendor = "Vendor",
+  Material = "Material",
+  PurchaseOrder = "PurchaseOrder",
   GRN = "GRN",
-  GRN_FIELD_CONFIG = "GRNFieldConfig",
+  GRNFieldConfig = "GRNFieldConfig",
   QC = "QC",
-  GATE_PASS = "GATE_PASS",
-  REPORTS = "REPORTS",
-  USERS = "USERS",
-  ROLES = "ROLES",
-  SETTINGS = "SETTINGS",
-  TENANTS = "TENANTS",
-  PLANS = "PLANS",
-  SUBSCRIPTIONS = "SUBSCRIPTIONS",
-  UPLOADS = "Upload",
-  SUPER_ADMIN = "SuperAdmin",
-  USER = "User",
-  TENANT = "Tenant",
-  PLAN = "Plan",
-  SUBSCRIPTION = "Subscription",
-  NOTIFICATION = "Notification",
-  PURCHASE_ORDER = "PurchaseOrder",
-  EXTERNAL_DB_CONFIG = "ExternalDbConfig",
+  GatePass = "GatePass",
+  Report = "Report",
+  User = "User",
+  Role = "Role",
+  Setting = "Setting",
+  Tenant = "Tenant",
+  Plan = "Plan",
+  Subscription = "Subscription",
+  Upload = "Upload",
+  SuperAdmin = "SuperAdmin",
+  Notification = "Notification",
+  ExternalDbConfig = "ExternalDbConfig",
 }
 
 export const ModuleDefinitions: Record<
   ModuleCode,
   { name: string; description: string }
 > = {
-  [ModuleCode.DASHBOARD]: {
+  [ModuleCode.Dashboard]: {
     name: "Dashboard",
     description: "Dashboard and analytics",
   },
-  [ModuleCode.VENDORS]: { name: "Vendors", description: "Vendor management" },
-  [ModuleCode.MATERIALS]: {
+  [ModuleCode.Vendor]: {
+    name: "Vendors",
+    description: "Vendor management",
+  },
+  [ModuleCode.Material]: {
     name: "Materials",
     description: "Material management",
   },
-  [ModuleCode.PURCHASE_ORDERS]: {
+  [ModuleCode.PurchaseOrder]: {
     name: "Purchase Orders",
     description: "Purchase order management",
   },
@@ -46,7 +45,7 @@ export const ModuleDefinitions: Record<
     name: "GRN",
     description: "Goods Receipt Note management",
   },
-  [ModuleCode.GRN_FIELD_CONFIG]: {
+  [ModuleCode.GRNFieldConfig]: {
     name: "GRN Field Config",
     description: "GRN field configuration management",
   },
@@ -54,56 +53,51 @@ export const ModuleDefinitions: Record<
     name: "Quality Control",
     description: "Quality control management",
   },
-  [ModuleCode.GATE_PASS]: {
+  [ModuleCode.GatePass]: {
     name: "Gate Pass",
     description: "Gate pass management",
   },
-  [ModuleCode.REPORTS]: {
+  [ModuleCode.Report]: {
     name: "Reports",
     description: "Reports and analytics",
   },
-  [ModuleCode.USERS]: { name: "Users", description: "User management" },
-  [ModuleCode.ROLES]: { name: "Roles", description: "Role management" },
-  [ModuleCode.SETTINGS]: { name: "Settings", description: "System settings" },
-  [ModuleCode.TENANTS]: { name: "Tenants", description: "Tenant management" },
-  [ModuleCode.PLANS]: { name: "Plans", description: "Plan management" },
-  [ModuleCode.SUBSCRIPTIONS]: {
+  [ModuleCode.User]: {
+    name: "Users",
+    description: "User management",
+  },
+  [ModuleCode.Role]: {
+    name: "Roles",
+    description: "Role management",
+  },
+  [ModuleCode.Setting]: {
+    name: "Settings",
+    description: "System settings",
+  },
+  [ModuleCode.Tenant]: {
+    name: "Tenants",
+    description: "Tenant management",
+  },
+  [ModuleCode.Plan]: {
+    name: "Plans",
+    description: "Plan management",
+  },
+  [ModuleCode.Subscription]: {
     name: "Subscriptions",
     description: "Subscription management",
   },
-  [ModuleCode.UPLOADS]: {
+  [ModuleCode.Upload]: {
     name: "Uploads",
     description: "File upload management",
   },
-  [ModuleCode.SUPER_ADMIN]: {
+  [ModuleCode.SuperAdmin]: {
     name: "Super Admin",
     description: "Super admin management",
   },
-  [ModuleCode.USER]: {
-    name: "User",
-    description: "Tenant user management",
-  },
-  [ModuleCode.TENANT]: {
-    name: "Tenant",
-    description: "Tenant management",
-  },
-  [ModuleCode.PLAN]: {
-    name: "Plan",
-    description: "Plan management",
-  },
-  [ModuleCode.SUBSCRIPTION]: {
-    name: "Subscription",
-    description: "Subscription management",
-  },
-  [ModuleCode.NOTIFICATION]: {
-    name: "Notification",
+  [ModuleCode.Notification]: {
+    name: "Notifications",
     description: "Notification management",
   },
-  [ModuleCode.PURCHASE_ORDER]: {
-    name: "Purchase Order",
-    description: "Purchase order management",
-  },
-  [ModuleCode.EXTERNAL_DB_CONFIG]: {
+  [ModuleCode.ExternalDbConfig]: {
     name: "External DB Config",
     description: "External database configuration management",
   },

@@ -33,7 +33,7 @@ export class UploadsController {
   constructor(private readonly uploadsService: UploadsService) {}
 
   @Post("file")
-  @RolePermission(`${ModuleCode.UPLOADS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Create}`)
   @UseInterceptors(FileInterceptor("file"))
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -90,7 +90,7 @@ export class UploadsController {
   }
 
   @Post("image")
-  @RolePermission(`${ModuleCode.UPLOADS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Create}`)
   @UseInterceptors(FileInterceptor("file"))
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -147,7 +147,7 @@ export class UploadsController {
   }
 
   @Post("document")
-  @RolePermission(`${ModuleCode.UPLOADS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Create}`)
   @UseInterceptors(FileInterceptor("file"))
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -204,7 +204,7 @@ export class UploadsController {
   }
 
   @Post("multiple")
-  @RolePermission(`${ModuleCode.UPLOADS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Create}`)
   @UseInterceptors(FilesInterceptor("files", 10))
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -264,7 +264,7 @@ export class UploadsController {
   }
 
   @Delete(":key(*)")
-  @RolePermission(`${ModuleCode.UPLOADS}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a file by key" })
   @ApiResponse({ status: 200, description: "File deleted successfully" })
   @ApiResponse({ status: 404, description: "File not found" })

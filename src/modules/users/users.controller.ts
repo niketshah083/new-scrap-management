@@ -36,7 +36,7 @@ export class UsersController {
 
   // Super Admin Management Endpoints
   @Post("super-admin")
-  @RolePermission(`${ModuleCode.SUPER_ADMIN}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.SuperAdmin}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new super admin" })
   @ApiResponse({ status: 201, description: "Super admin created successfully" })
   @ApiResponse({ status: 409, description: "Email already exists" })
@@ -61,8 +61,8 @@ export class UsersController {
 
   @Get("super-admin")
   @RolePermission(
-    `${ModuleCode.SUPER_ADMIN}:${OperationCode.LIST}`,
-    `${ModuleCode.SUPER_ADMIN}:${OperationCode.READ}`
+    `${ModuleCode.SuperAdmin}:${OperationCode.List}`,
+    `${ModuleCode.SuperAdmin}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all super admins" })
   @ApiResponse({
@@ -83,7 +83,7 @@ export class UsersController {
   }
 
   @Get("super-admin/:id")
-  @RolePermission(`${ModuleCode.SUPER_ADMIN}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.SuperAdmin}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a super admin by ID" })
   @ApiResponse({
     status: 200,
@@ -104,7 +104,7 @@ export class UsersController {
   }
 
   @Put("super-admin/:id")
-  @RolePermission(`${ModuleCode.SUPER_ADMIN}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.SuperAdmin}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a super admin" })
   @ApiResponse({ status: 200, description: "Super admin updated successfully" })
   @ApiResponse({ status: 404, description: "Super admin not found" })
@@ -131,7 +131,7 @@ export class UsersController {
   }
 
   @Delete("super-admin/:id")
-  @RolePermission(`${ModuleCode.SUPER_ADMIN}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.SuperAdmin}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a super admin" })
   @ApiResponse({ status: 200, description: "Super admin deleted successfully" })
   @ApiResponse({ status: 404, description: "Super admin not found" })
@@ -152,7 +152,7 @@ export class UsersController {
   }
 
   @Put("super-admin/:id/reset-password")
-  @RolePermission(`${ModuleCode.SUPER_ADMIN}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.SuperAdmin}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Reset super admin password" })
   @ApiResponse({ status: 200, description: "Password reset successfully" })
   @ApiResponse({ status: 404, description: "Super admin not found" })
@@ -180,7 +180,7 @@ export class UsersController {
 
   // Tenant User Management Endpoints
   @Post()
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new tenant user" })
   @ApiResponse({ status: 201, description: "User created successfully" })
   @ApiResponse({ status: 409, description: "Email already exists" })
@@ -207,8 +207,8 @@ export class UsersController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.USER}:${OperationCode.LIST}`,
-    `${ModuleCode.USER}:${OperationCode.READ}`
+    `${ModuleCode.User}:${OperationCode.List}`,
+    `${ModuleCode.User}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all tenant users" })
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
@@ -228,7 +228,7 @@ export class UsersController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a tenant user by ID" })
   @ApiResponse({ status: 200, description: "User retrieved successfully" })
   @ApiResponse({ status: 404, description: "User not found" })
@@ -252,7 +252,7 @@ export class UsersController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a tenant user" })
   @ApiResponse({ status: 200, description: "User updated successfully" })
   @ApiResponse({ status: 404, description: "User not found" })
@@ -280,7 +280,7 @@ export class UsersController {
   }
 
   @Put(":id/role")
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update user role" })
   @ApiResponse({ status: 200, description: "User role updated successfully" })
   @ApiResponse({ status: 404, description: "User or role not found" })
@@ -307,7 +307,7 @@ export class UsersController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a tenant user" })
   @ApiResponse({ status: 200, description: "User deleted successfully" })
   @ApiResponse({ status: 404, description: "User not found" })
@@ -332,7 +332,7 @@ export class UsersController {
   }
 
   @Put(":id/reset-password")
-  @RolePermission(`${ModuleCode.USER}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.User}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Reset user password" })
   @ApiResponse({ status: 200, description: "Password reset successfully" })
   @ApiResponse({ status: 404, description: "User not found" })

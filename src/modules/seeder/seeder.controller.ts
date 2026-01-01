@@ -23,4 +23,23 @@ export class SeederController {
       data: result.details,
     };
   }
+
+  @Post("migrate-permissions")
+  @Public()
+  @ApiOperation({
+    summary:
+      "Migrate permissions from old UPPERCASE format to new PascalCase format",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Permission migration completed successfully",
+  })
+  async migratePermissions() {
+    const result = await this.seederService.migratePermissions();
+    return {
+      success: true,
+      message: result.message,
+      data: result.details,
+    };
+  }
 }

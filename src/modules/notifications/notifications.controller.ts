@@ -29,7 +29,7 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.NOTIFICATION}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Notification}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new notification" })
   @ApiResponse({
     status: 201,

@@ -34,7 +34,7 @@ export class GatePassController {
 
   @Post()
   @RolePermission(
-    `${ModuleCode.GATE_PASS}:${OperationCode.CREATE}`,
+    `${ModuleCode.GatePass}:${OperationCode.Create}`,
     `${ModuleCode.GRN}:${OperationCode.STEP7_GATE_PASS}`
   )
   @ApiOperation({ summary: "Generate a new gate pass for approved GRN" })
@@ -62,7 +62,7 @@ export class GatePassController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all gate passes" })
   @ApiResponse({
     status: 200,
@@ -82,7 +82,7 @@ export class GatePassController {
   }
 
   @Get("active")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all active gate passes" })
   @ApiResponse({
     status: 200,
@@ -102,7 +102,7 @@ export class GatePassController {
   }
 
   @Get("expired")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all expired gate passes" })
   @ApiResponse({
     status: 200,
@@ -122,7 +122,7 @@ export class GatePassController {
   }
 
   @Get("count/active")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get count of active gate passes" })
   @ApiResponse({ status: 200, description: "Count retrieved successfully" })
   async getActiveCount(@Req() req: RequestWithUser) {
@@ -141,7 +141,7 @@ export class GatePassController {
   }
 
   @Post("verify")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Verify}`)
   @ApiOperation({ summary: "Verify a gate pass by pass number" })
   @ApiResponse({ status: 200, description: "Gate pass verification result" })
   @ApiResponse({ status: 404, description: "Gate pass not found" })
@@ -165,7 +165,7 @@ export class GatePassController {
   }
 
   @Get("by-grn/:grnId")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a gate pass by GRN ID" })
   @ApiResponse({ status: 200, description: "Gate pass retrieved successfully" })
   async findByGrnId(
@@ -190,7 +190,7 @@ export class GatePassController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a gate pass by ID" })
   @ApiResponse({ status: 200, description: "Gate pass retrieved successfully" })
   @ApiResponse({ status: 404, description: "Gate pass not found" })
@@ -211,7 +211,7 @@ export class GatePassController {
   }
 
   @Put(":id/use")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Mark a gate pass as used" })
   @ApiResponse({ status: 200, description: "Gate pass marked as used" })
   @ApiResponse({
@@ -242,7 +242,7 @@ export class GatePassController {
   }
 
   @Post("update-expired")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update all expired gate passes status" })
   @ApiResponse({ status: 200, description: "Expired passes updated" })
   async updateExpiredPasses(@Req() req: RequestWithUser) {
@@ -261,7 +261,7 @@ export class GatePassController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.GATE_PASS}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.GatePass}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a gate pass" })
   @ApiResponse({ status: 200, description: "Gate pass deleted successfully" })
   @ApiResponse({ status: 404, description: "Gate pass not found" })

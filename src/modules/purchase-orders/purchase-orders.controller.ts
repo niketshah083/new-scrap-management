@@ -17,7 +17,11 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { PurchaseOrdersService } from "./purchase-orders.service";
-import { CreatePurchaseOrderDto, UpdatePurchaseOrderDto } from "./dto";
+import {
+  CreatePurchaseOrderDto,
+  UpdatePurchaseOrderDto,
+  RejectPurchaseOrderDto,
+} from "./dto";
 import { RolePermission } from "../../common/decorators/role-permission.decorator";
 import { RequestWithUser } from "../../common/middleware/verify-token.middleware";
 import { ModuleCode, OperationCode } from "../../common/enums";
@@ -29,7 +33,7 @@ export class PurchaseOrdersController {
   constructor(private readonly purchaseOrdersService: PurchaseOrdersService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.PURCHASE_ORDER}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.PurchaseOrder}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new purchase order" })
   @ApiResponse({
     status: 201,
@@ -63,8 +67,8 @@ export class PurchaseOrdersController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.LIST}`,
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.READ}`
+    `${ModuleCode.PurchaseOrder}:${OperationCode.List}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all purchase orders" })
   @ApiResponse({
@@ -86,8 +90,8 @@ export class PurchaseOrdersController {
 
   @Get("pending")
   @RolePermission(
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.LIST}`,
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.READ}`
+    `${ModuleCode.PurchaseOrder}:${OperationCode.List}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all pending purchase orders" })
   @ApiResponse({
@@ -110,7 +114,7 @@ export class PurchaseOrdersController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.PURCHASE_ORDER}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.PurchaseOrder}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a purchase order by ID" })
   @ApiResponse({
     status: 200,
@@ -138,8 +142,8 @@ export class PurchaseOrdersController {
 
   @Put(":id")
   @RolePermission(
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.EDIT}`
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Update}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Update a purchase order" })
   @ApiResponse({
@@ -174,7 +178,7 @@ export class PurchaseOrdersController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.PURCHASE_ORDER}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.PurchaseOrder}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a purchase order" })
   @ApiResponse({
     status: 200,
@@ -203,8 +207,8 @@ export class PurchaseOrdersController {
 
   @Patch(":id/status/:status")
   @RolePermission(
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PURCHASE_ORDER}:${OperationCode.EDIT}`
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Update}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Update purchase order status" })
   @ApiResponse({
@@ -227,6 +231,128 @@ export class PurchaseOrdersController {
       return {
         success: true,
         message: `Purchase order status updated to ${status} successfully`,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch(":id/submit-for-approval")
+  @RolePermission(
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Update}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Edit}`
+  )
+  @ApiOperation({ summary: "Submit purchase order for approval" })
+  @ApiResponse({
+    status: 200,
+    description: "Purchase order submitted for approval successfully",
+  })
+  @ApiResponse({ status: 400, description: "Invalid status transition" })
+  @ApiResponse({ status: 404, description: "Purchase order not found" })
+  async submitForApproval(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const data = await this.purchaseOrdersService.submitForApproval(
+        req.user.tenantId,
+        id,
+        req.user.userId
+      );
+      return {
+        success: true,
+        message: "Purchase order submitted for approval successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch(":id/approve")
+  @RolePermission(`${ModuleCode.PurchaseOrder}:${OperationCode.Approve}`)
+  @ApiOperation({ summary: "Approve purchase order" })
+  @ApiResponse({
+    status: 200,
+    description: "Purchase order approved successfully",
+  })
+  @ApiResponse({ status: 400, description: "Invalid status transition" })
+  @ApiResponse({ status: 404, description: "Purchase order not found" })
+  async approve(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const data = await this.purchaseOrdersService.approve(
+        req.user.tenantId,
+        id,
+        req.user.userId
+      );
+      return {
+        success: true,
+        message: "Purchase order approved successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch(":id/reject")
+  @RolePermission(`${ModuleCode.PurchaseOrder}:${OperationCode.Approve}`)
+  @ApiOperation({ summary: "Reject purchase order" })
+  @ApiResponse({
+    status: 200,
+    description: "Purchase order rejected successfully",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid status transition or missing rejection reason",
+  })
+  @ApiResponse({ status: 404, description: "Purchase order not found" })
+  async reject(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() rejectDto: RejectPurchaseOrderDto,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const data = await this.purchaseOrdersService.reject(
+        req.user.tenantId,
+        id,
+        req.user.userId,
+        rejectDto.rejectionReason
+      );
+      return {
+        success: true,
+        message: "Purchase order rejected successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get("approved/list")
+  @RolePermission(
+    `${ModuleCode.PurchaseOrder}:${OperationCode.List}`,
+    `${ModuleCode.PurchaseOrder}:${OperationCode.Read}`
+  )
+  @ApiOperation({
+    summary: "Get all approved purchase orders (for GRN creation)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Approved purchase orders retrieved successfully",
+  })
+  async findApprovedOrders(@Req() req: RequestWithUser) {
+    try {
+      const data = await this.purchaseOrdersService.findApprovedOrders(
+        req.user.tenantId
+      );
+      return {
+        success: true,
+        message: "Approved purchase orders retrieved successfully",
         data,
       };
     } catch (error) {

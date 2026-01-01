@@ -63,7 +63,7 @@ export class GRNController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all GRNs" })
   @ApiResponse({ status: 200, description: "GRNs retrieved successfully" })
   async findAll(@Req() req: RequestWithUser) {
@@ -80,7 +80,7 @@ export class GRNController {
   }
 
   @Get("stats/today")
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get today's GRN statistics" })
   @ApiResponse({
     status: 200,
@@ -100,7 +100,7 @@ export class GRNController {
   }
 
   @Get("status/:status")
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get GRNs by status" })
   @ApiQuery({ name: "status", enum: ["in_progress", "completed", "rejected"] })
   @ApiResponse({ status: 200, description: "GRNs retrieved successfully" })
@@ -124,7 +124,7 @@ export class GRNController {
   }
 
   @Get("step/:step")
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get GRNs by current step" })
   @ApiResponse({ status: 200, description: "GRNs retrieved successfully" })
   async findByStep(
@@ -178,7 +178,7 @@ export class GRNController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a GRN by ID" })
   @ApiResponse({ status: 200, description: "GRN retrieved successfully" })
   @ApiResponse({ status: 404, description: "GRN not found" })
@@ -325,7 +325,7 @@ export class GRNController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.GRN}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a GRN" })
   @ApiResponse({ status: 200, description: "GRN deleted successfully" })
   @ApiResponse({ status: 404, description: "GRN not found" })

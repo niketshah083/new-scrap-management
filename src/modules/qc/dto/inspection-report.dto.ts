@@ -12,9 +12,9 @@ export class InspectionReportDto {
     grnNumber: string;
     truckNumber: string;
     driverName: string;
-    grossWeight: number;
-    tareWeight: number;
-    netWeight: number;
+    grossWeight: number | null;
+    tareWeight: number | null;
+    netWeight: number | null;
     createdAt: Date;
   };
 

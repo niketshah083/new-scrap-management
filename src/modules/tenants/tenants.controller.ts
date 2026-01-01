@@ -33,7 +33,7 @@ export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.TENANT}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Tenant}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new tenant" })
   @ApiResponse({ status: 201, description: "Tenant created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -62,8 +62,8 @@ export class TenantsController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.TENANT}:${OperationCode.LIST}`,
-    `${ModuleCode.TENANT}:${OperationCode.READ}`
+    `${ModuleCode.Tenant}:${OperationCode.List}`,
+    `${ModuleCode.Tenant}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all tenants" })
   @ApiResponse({ status: 200, description: "Tenants retrieved successfully" })
@@ -81,7 +81,7 @@ export class TenantsController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.TENANT}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Tenant}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a tenant by ID" })
   @ApiResponse({ status: 200, description: "Tenant retrieved successfully" })
   @ApiResponse({ status: 404, description: "Tenant not found" })
@@ -100,8 +100,8 @@ export class TenantsController {
 
   @Put(":id")
   @RolePermission(
-    `${ModuleCode.TENANT}:${OperationCode.UPDATE}`,
-    `${ModuleCode.TENANT}:${OperationCode.EDIT}`
+    `${ModuleCode.Tenant}:${OperationCode.Update}`,
+    `${ModuleCode.Tenant}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Update a tenant" })
   @ApiResponse({ status: 200, description: "Tenant updated successfully" })
@@ -132,7 +132,7 @@ export class TenantsController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.TENANT}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Tenant}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a tenant" })
   @ApiResponse({ status: 200, description: "Tenant deleted successfully" })
   @ApiResponse({ status: 404, description: "Tenant not found" })
@@ -154,8 +154,8 @@ export class TenantsController {
 
   @Patch(":id/toggle-status")
   @RolePermission(
-    `${ModuleCode.TENANT}:${OperationCode.UPDATE}`,
-    `${ModuleCode.TENANT}:${OperationCode.EDIT}`
+    `${ModuleCode.Tenant}:${OperationCode.Update}`,
+    `${ModuleCode.Tenant}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Toggle tenant active status" })
   @ApiResponse({
@@ -182,10 +182,91 @@ export class TenantsController {
 
   // External Database Configuration Endpoints
 
+  // Self-service endpoint for tenant users to manage their own external DB config
+  @Get("my/external-db-config")
+  @RolePermission(`${ModuleCode.ExternalDbConfig}:${OperationCode.Read}`)
+  @ApiOperation({
+    summary: "Get external database configuration for current tenant",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "External DB config retrieved successfully",
+  })
+  async getMyExternalDbConfig(@Req() req: RequestWithUser) {
+    try {
+      const data = await this.tenantsService.getExternalDbConfig(
+        req.user.tenantId
+      );
+      return {
+        success: true,
+        message: "External database configuration retrieved successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Put("my/external-db-config")
+  @RolePermission(`${ModuleCode.ExternalDbConfig}:${OperationCode.Update}`)
+  @ApiOperation({
+    summary: "Update external database configuration for current tenant",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "External DB config updated successfully",
+  })
+  @ApiResponse({ status: 400, description: "Invalid configuration" })
+  async updateMyExternalDbConfig(
+    @Body() updateDto: UpdateExternalDbConfigDto,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const data = await this.tenantsService.updateExternalDbConfig(
+        req.user.tenantId,
+        updateDto,
+        req.user.userId
+      );
+      return {
+        success: true,
+        message: "External database configuration updated successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post("my/external-db-config/test")
+  @RolePermission(`${ModuleCode.ExternalDbConfig}:${OperationCode.Read}`)
+  @ApiOperation({
+    summary: "Test external database connection for current tenant",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Connection test result",
+  })
+  @ApiResponse({ status: 400, description: "Connection test failed" })
+  async testMyExternalDbConnection(@Req() req: RequestWithUser) {
+    try {
+      const result = await this.tenantsService.testExternalDbConnection(
+        req.user.tenantId
+      );
+      return {
+        success: result.success,
+        message: result.message,
+        data: { connected: result.success },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Super Admin endpoints for managing any tenant's external DB config
   @Get(":id/external-db-config")
   @RolePermission(
-    `${ModuleCode.EXTERNAL_DB_CONFIG}:${OperationCode.READ}`,
-    `${ModuleCode.TENANT}:${OperationCode.UPDATE}`
+    `${ModuleCode.ExternalDbConfig}:${OperationCode.Read}`,
+    `${ModuleCode.Tenant}:${OperationCode.Update}`
   )
   @ApiOperation({ summary: "Get external database configuration for a tenant" })
   @ApiResponse({
@@ -208,8 +289,8 @@ export class TenantsController {
 
   @Put(":id/external-db-config")
   @RolePermission(
-    `${ModuleCode.EXTERNAL_DB_CONFIG}:${OperationCode.UPDATE}`,
-    `${ModuleCode.TENANT}:${OperationCode.UPDATE}`
+    `${ModuleCode.ExternalDbConfig}:${OperationCode.Update}`,
+    `${ModuleCode.Tenant}:${OperationCode.Update}`
   )
   @ApiOperation({
     summary: "Update external database configuration for a tenant",
@@ -243,8 +324,8 @@ export class TenantsController {
 
   @Post(":id/external-db-config/test")
   @RolePermission(
-    `${ModuleCode.EXTERNAL_DB_CONFIG}:${OperationCode.READ}`,
-    `${ModuleCode.TENANT}:${OperationCode.UPDATE}`
+    `${ModuleCode.ExternalDbConfig}:${OperationCode.Read}`,
+    `${ModuleCode.Tenant}:${OperationCode.Update}`
   )
   @ApiOperation({ summary: "Test external database connection for a tenant" })
   @ApiResponse({

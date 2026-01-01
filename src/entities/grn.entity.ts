@@ -23,12 +23,24 @@ export class GRN extends BaseEntity {
   @JoinColumn({ name: "purchase_order_id" })
   purchaseOrder: PurchaseOrder;
 
-  @Column({ name: "vendor_id" })
+  // External PO reference (used when external DB is enabled)
+  @Column({ name: "external_po_id", length: 100, nullable: true })
+  externalPoId: string;
+
+  @Column({ name: "vendor_id", nullable: true })
   vendorId: number;
 
-  @ManyToOne(() => Vendor)
+  @ManyToOne(() => Vendor, { nullable: true })
   @JoinColumn({ name: "vendor_id" })
   vendor: Vendor;
+
+  // External Vendor reference (used when external DB is enabled)
+  @Column({ name: "external_vendor_id", length: 100, nullable: true })
+  externalVendorId: string;
+
+  // Flag to indicate if this GRN uses external data sources
+  @Column({ name: "uses_external_db", default: false })
+  usesExternalDb: boolean;
 
   @Column({ name: "current_step", type: "tinyint", default: 1 })
   currentStep: number; // 1-7
@@ -36,88 +48,20 @@ export class GRN extends BaseEntity {
   @Column({ length: 20, default: "in_progress" })
   status: string; // in_progress, completed, rejected
 
-  // Step 1 - Gate Entry fields
+  // ============================================
+  // STATIC FIELDS (not configurable per tenant)
+  // ============================================
+
+  // Step 1 - Gate Entry (static field)
   @Column({ name: "truck_number", length: 50, nullable: true })
   truckNumber: string;
 
-  /**
-   * @deprecated Use dynamic field values (GRNFieldValue) with fieldName="driver_name" instead.
-   * This column is kept for backward compatibility but is no longer populated.
-   */
-  @Column({ name: "driver_name", length: 255, nullable: true })
-  driverName: string;
-
-  /**
-   * @deprecated Use dynamic field values (GRNFieldValue) with fieldName="driver_mobile" instead.
-   * This column is kept for backward compatibility but is no longer populated.
-   */
-  @Column({ name: "driver_mobile", length: 20, nullable: true })
-  driverMobile: string;
-
-  /**
-   * @deprecated Use dynamic field values (GRNFieldValue) with fieldName="driver_licence" instead.
-   * This column is kept for backward compatibility but is no longer populated.
-   */
-  @Column({ name: "driver_licence", length: 100, nullable: true })
-  driverLicence: string;
-
-  // Step 2 - Initial Weighing fields
-  @Column("decimal", {
-    name: "gross_weight",
-    precision: 10,
-    scale: 2,
-    nullable: true,
-  })
-  grossWeight: number;
-
-  @Column({ name: "gross_weight_image", length: 500, nullable: true })
-  grossWeightImage: string;
-
-  // Step 3 - Unloading fields
-  @Column({ name: "driver_photo", length: 500, nullable: true })
-  driverPhoto: string;
-
-  @Column({ name: "driver_licence_image", length: 500, nullable: true })
-  driverLicenceImage: string;
-
-  @Column("json", { name: "unloading_photos", nullable: true })
-  unloadingPhotos: string[];
-
-  @Column("text", { name: "unloading_notes", nullable: true })
-  unloadingNotes: string;
-
-  // Step 4 - Final Weighing fields
-  @Column("decimal", {
-    name: "tare_weight",
-    precision: 10,
-    scale: 2,
-    nullable: true,
-  })
-  tareWeight: number;
-
-  @Column({ name: "tare_weight_image", length: 500, nullable: true })
-  tareWeightImage: string;
-
-  @Column("decimal", {
-    name: "net_weight",
-    precision: 10,
-    scale: 2,
-    nullable: true,
-  })
-  netWeight: number;
-
-  @Column({ name: "material_count", nullable: true })
-  materialCount: number;
-
-  // Step 5 - Supervisor Review fields
+  // Step 5 - Supervisor Review (static fields)
   @Column({ name: "verification_status", length: 20, nullable: true })
   verificationStatus: string; // verified, not_verified
 
   @Column({ name: "approval_status", length: 20, nullable: true })
   approvalStatus: string; // approved, rejected
-
-  @Column("text", { name: "review_notes", nullable: true })
-  reviewNotes: string;
 
   @Column("text", { name: "rejection_reason", nullable: true })
   rejectionReason: string;
@@ -127,6 +71,22 @@ export class GRN extends BaseEntity {
 
   @Column({ name: "reviewed_at", type: "datetime", nullable: true })
   reviewedAt: Date;
+
+  // Step 4 - Net Weight (static field, auto-calculated from gross_weight - tare_weight)
+  @Column("decimal", {
+    name: "net_weight",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  netWeight: number;
+
+  // ============================================
+  // DYNAMIC FIELDS are stored in GRNFieldValue
+  // Step 2: gross_weight, gross_weight_image
+  // Step 3: driver_photo, driver_licence_image, unloading_photos, unloading_notes, material_count
+  // Step 4: tare_weight, tare_weight_image, net_weight
+  // ============================================
 
   // Relations
   @OneToMany("GRNFieldValue", "grn", { cascade: true })

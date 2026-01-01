@@ -30,7 +30,7 @@ export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new vendor" })
   @ApiResponse({ status: 201, description: "Vendor created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -59,7 +59,7 @@ export class VendorsController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all vendors" })
   @ApiResponse({ status: 200, description: "Vendors retrieved successfully" })
   async findAll(@Req() req: RequestWithUser) {
@@ -76,7 +76,7 @@ export class VendorsController {
   }
 
   @Get("active")
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all active vendors" })
   @ApiResponse({
     status: 200,
@@ -98,7 +98,7 @@ export class VendorsController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a vendor by ID" })
   @ApiResponse({ status: 200, description: "Vendor retrieved successfully" })
   @ApiResponse({ status: 404, description: "Vendor not found" })
@@ -119,7 +119,7 @@ export class VendorsController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a vendor" })
   @ApiResponse({ status: 200, description: "Vendor updated successfully" })
   @ApiResponse({ status: 404, description: "Vendor not found" })
@@ -150,7 +150,7 @@ export class VendorsController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a vendor" })
   @ApiResponse({ status: 200, description: "Vendor deleted successfully" })
   @ApiResponse({ status: 404, description: "Vendor not found" })
@@ -171,7 +171,7 @@ export class VendorsController {
   }
 
   @Patch(":id/toggle-status")
-  @RolePermission(`${ModuleCode.VENDORS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Vendor}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Toggle vendor active status" })
   @ApiResponse({
     status: 200,

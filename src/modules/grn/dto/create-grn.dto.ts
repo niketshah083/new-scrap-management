@@ -22,7 +22,7 @@ class FieldValueDto {
 
 export class CreateGRNDto {
   @ApiProperty({
-    description: "Purchase Order ID (optional)",
+    description: "Purchase Order ID (internal, optional)",
     example: 1,
     required: false,
   })
@@ -30,10 +30,32 @@ export class CreateGRNDto {
   @IsOptional()
   purchaseOrderId?: number;
 
-  @ApiProperty({ description: "Vendor ID", example: 1 })
+  @ApiProperty({
+    description: "External Purchase Order ID (when using external DB)",
+    example: "PO-2024-001",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  externalPoId?: string;
+
+  @ApiProperty({
+    description: "Vendor ID (internal, optional if using external DB)",
+    example: 1,
+    required: false,
+  })
   @IsNumber()
-  @IsNotEmpty()
-  vendorId: number;
+  @IsOptional()
+  vendorId?: number;
+
+  @ApiProperty({
+    description: "External Vendor ID (when using external DB)",
+    example: "V001",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  externalVendorId?: string;
 
   @ApiProperty({ description: "Truck number", example: "MH12AB1234" })
   @IsString()

@@ -10,6 +10,7 @@ import {
   Query,
   ParseIntPipe,
   Req,
+  NotFoundException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -32,7 +33,7 @@ export class MaterialsController {
   constructor(private readonly materialsService: MaterialsService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new material" })
   @ApiResponse({ status: 201, description: "Material created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -61,12 +62,14 @@ export class MaterialsController {
   }
 
   @Get()
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all materials" })
   @ApiResponse({ status: 200, description: "Materials retrieved successfully" })
   async findAll(@Req() req: RequestWithUser) {
     try {
-      const data = await this.materialsService.findAll(req.user.tenantId);
+      const data = await this.materialsService.findAllFromDataSource(
+        req.user.tenantId
+      );
       return {
         success: true,
         message: "Materials retrieved successfully",
@@ -78,7 +81,7 @@ export class MaterialsController {
   }
 
   @Get("active")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get all active materials" })
   @ApiResponse({
     status: 200,
@@ -86,9 +89,10 @@ export class MaterialsController {
   })
   async findActiveMaterials(@Req() req: RequestWithUser) {
     try {
-      const data = await this.materialsService.findActiveMaterials(
-        req.user.tenantId
-      );
+      const data =
+        await this.materialsService.findActiveMaterialsFromDataSource(
+          req.user.tenantId
+        );
       return {
         success: true,
         message: "Active materials retrieved successfully",
@@ -100,7 +104,7 @@ export class MaterialsController {
   }
 
   @Get("category")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.LIST}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.List}`)
   @ApiOperation({ summary: "Get materials by category" })
   @ApiQuery({
     name: "category",
@@ -128,7 +132,7 @@ export class MaterialsController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a material by ID" })
   @ApiResponse({ status: 200, description: "Material retrieved successfully" })
   @ApiResponse({ status: 404, description: "Material not found" })
@@ -137,7 +141,13 @@ export class MaterialsController {
     @Req() req: RequestWithUser
   ) {
     try {
-      const data = await this.materialsService.findOne(req.user.tenantId, id);
+      const data = await this.materialsService.findOneFromDataSource(
+        req.user.tenantId,
+        id
+      );
+      if (!data) {
+        throw new NotFoundException(`Material with ID ${id} not found`);
+      }
       return {
         success: true,
         message: "Material retrieved successfully",
@@ -149,7 +159,7 @@ export class MaterialsController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a material" })
   @ApiResponse({ status: 200, description: "Material updated successfully" })
   @ApiResponse({ status: 404, description: "Material not found" })
@@ -180,7 +190,7 @@ export class MaterialsController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a material" })
   @ApiResponse({ status: 200, description: "Material deleted successfully" })
   @ApiResponse({ status: 404, description: "Material not found" })
@@ -205,7 +215,7 @@ export class MaterialsController {
   }
 
   @Patch(":id/toggle-status")
-  @RolePermission(`${ModuleCode.MATERIALS}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.Material}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Toggle material active status" })
   @ApiResponse({
     status: 200,

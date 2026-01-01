@@ -8,69 +8,106 @@ import { Repository } from "typeorm";
 import { GRNFieldConfig } from "../../entities/grn-field-config.entity";
 import { CreateGRNFieldConfigDto, UpdateGRNFieldConfigDto } from "./dto";
 
-// Default GRN field configurations for new tenants
-// NOTE: These are DYNAMIC fields only. Static fields like grossWeight, tareWeight, netWeight,
-// truckNumber, verificationStatus, approvalStatus are already in the GRN entity.
+/**
+ * Default GRN field configurations for new tenants
+ *
+ * STATIC FIELDS (in GRN entity - not configurable):
+ * - Step 1: truckNumber
+ * - Step 4: netWeight (auto-calculated)
+ * - Step 5: verificationStatus, approvalStatus, rejectionReason
+ *
+ * DYNAMIC FIELDS (configurable per tenant - stored in GRNFieldValue):
+ * - Step 1: invoice_file, po_file, driver_name
+ * - Step 2: gross_weight, gross_weight_image
+ * - Step 3: driver_photo, driver_licence_image, unloading_photos, unloading_notes, material_count
+ * - Step 4: tare_weight, tare_weight_image
+ * - Step 5, 6, 7: No dynamic fields as of now
+ */
 const DEFAULT_GRN_FIELDS = [
-  // Step 1: Gate Entry (truckNumber, vendorId, purchaseOrderId are static)
+  // Step 1: Gate Entry (truckNumber is static, these are dynamic)
   {
     stepNumber: 1,
-    fieldName: "invoice",
-    fieldLabel: "Invoice",
+    fieldName: "invoice_file",
+    fieldLabel: "Invoice File",
     fieldType: "file",
     isRequired: false,
     displayOrder: 1,
+    allowMultiple: false,
+    maxFiles: 1,
+  },
+  {
+    stepNumber: 1,
+    fieldName: "po_file",
+    fieldLabel: "PO File",
+    fieldType: "file",
+    isRequired: false,
+    displayOrder: 2,
+    allowMultiple: false,
+    maxFiles: 1,
   },
   {
     stepNumber: 1,
     fieldName: "driver_name",
     fieldLabel: "Driver Name",
     fieldType: "text",
-    isRequired: true,
-    displayOrder: 2,
-  },
-  {
-    stepNumber: 1,
-    fieldName: "driver_phone",
-    fieldLabel: "Driver Phone",
-    fieldType: "text",
     isRequired: false,
     displayOrder: 3,
+    allowMultiple: false,
+    maxFiles: 1,
   },
+
+  // Step 2: Initial Weighing
   {
-    stepNumber: 1,
-    fieldName: "entry_time",
-    fieldLabel: "Entry Time",
-    fieldType: "date",
+    stepNumber: 2,
+    fieldName: "gross_weight",
+    fieldLabel: "Gross Weight (kg)",
+    fieldType: "number",
     isRequired: true,
-    displayOrder: 4,
+    displayOrder: 1,
+    allowMultiple: false,
+    maxFiles: 1,
   },
   {
-    stepNumber: 1,
-    fieldName: "po_file",
-    fieldLabel: "Purchase Order File",
+    stepNumber: 2,
+    fieldName: "gross_weight_image",
+    fieldLabel: "Gross Weight Image",
     fieldType: "photo",
     isRequired: false,
-    displayOrder: 5,
+    displayOrder: 2,
+    allowMultiple: true,
+    maxFiles: 3,
   },
-  // Step 2: Initial Weighing (grossWeight, grossWeightImage are static)
-  // No additional dynamic fields needed - static fields handle this step
+
   // Step 3: Unloading
   {
     stepNumber: 3,
-    fieldName: "unloading_start_time",
-    fieldLabel: "Unloading Start Time",
-    fieldType: "date",
+    fieldName: "driver_photo",
+    fieldLabel: "Driver Photo",
+    fieldType: "photo",
     isRequired: false,
     displayOrder: 1,
+    allowMultiple: false,
+    maxFiles: 1,
   },
   {
     stepNumber: 3,
-    fieldName: "unloading_end_time",
-    fieldLabel: "Unloading End Time",
-    fieldType: "date",
+    fieldName: "driver_licence_image",
+    fieldLabel: "Driver Licence Image",
+    fieldType: "photo",
     isRequired: false,
     displayOrder: 2,
+    allowMultiple: true,
+    maxFiles: 2,
+  },
+  {
+    stepNumber: 3,
+    fieldName: "unloading_photos",
+    fieldLabel: "Unloading Photos",
+    fieldType: "photo",
+    isRequired: true,
+    displayOrder: 3,
+    allowMultiple: true,
+    maxFiles: 3,
   },
   {
     stepNumber: 3,
@@ -78,23 +115,58 @@ const DEFAULT_GRN_FIELDS = [
     fieldLabel: "Unloading Notes",
     fieldType: "text",
     isRequired: false,
-    displayOrder: 3,
+    displayOrder: 4,
+    allowMultiple: false,
+    maxFiles: 1,
   },
-  // Step 4: Final Weighing (tareWeight, tareWeightImage, netWeight are static)
-  // No additional dynamic fields needed - static fields handle this step
-  // Step 5: Supervisor Review (verificationStatus, approvalStatus, reviewNotes, rejectionReason are static)
+  {
+    stepNumber: 3,
+    fieldName: "material_count",
+    fieldLabel: "Material Count",
+    fieldType: "number",
+    isRequired: true,
+    displayOrder: 5,
+    allowMultiple: false,
+    maxFiles: 1,
+  },
+
+  // Step 4: Final Weighing
+  {
+    stepNumber: 4,
+    fieldName: "tare_weight",
+    fieldLabel: "Tare Weight (kg)",
+    fieldType: "number",
+    isRequired: true,
+    displayOrder: 1,
+    allowMultiple: false,
+    maxFiles: 1,
+  },
+  {
+    stepNumber: 4,
+    fieldName: "tare_weight_image",
+    fieldLabel: "Tare Weight Image",
+    fieldType: "photo",
+    isRequired: false,
+    displayOrder: 2,
+    allowMultiple: true,
+    maxFiles: 3,
+  },
+  // NOTE: net_weight is a static field in GRN entity (auto-calculated from gross_weight - tare_weight)
+
+  // Step 5: Supervisor Review -fields (verificationStatus, approvalStatus, rejectionReason are static)
+
   {
     stepNumber: 5,
-    fieldName: "review_notes",
-    fieldLabel: "Review Notes",
+    fieldName: "remark",
+    fieldLabel: "Remarks",
     fieldType: "text",
     isRequired: false,
     displayOrder: 1,
+    allowMultiple: false,
+    maxFiles: 1,
   },
-  // Step 6: Gate Pass - handled by GatePass entity
-  // No dynamic fields needed
-  // Step 7: Inspection Report - handled by QCInspection entity
-  // No dynamic fields needed
+  // Step 6: Gate Pass - No dynamic fields
+  // Step 7: QC Inspection - No dynamic fields
 ];
 
 @Injectable()

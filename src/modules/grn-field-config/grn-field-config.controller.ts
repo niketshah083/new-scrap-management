@@ -29,7 +29,7 @@ export class GRNFieldConfigController {
   constructor(private readonly fieldConfigService: GRNFieldConfigService) {}
 
   @Post("initialize-defaults")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Create}`)
   @ApiOperation({
     summary: "Initialize default GRN field configurations for tenant",
   })
@@ -67,7 +67,7 @@ export class GRNFieldConfigController {
   }
 
   @Post()
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new GRN field configuration" })
   @ApiResponse({
     status: 201,
@@ -100,8 +100,8 @@ export class GRNFieldConfigController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.LIST}`,
-    `${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.READ}`
+    `${ModuleCode.GRNFieldConfig}:${OperationCode.List}`,
+    `${ModuleCode.GRNFieldConfig}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all GRN field configurations" })
   @ApiResponse({
@@ -123,8 +123,8 @@ export class GRNFieldConfigController {
 
   @Get("step/:stepNumber")
   @RolePermission(
-    `${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.LIST}`,
-    `${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.READ}`
+    `${ModuleCode.GRNFieldConfig}:${OperationCode.List}`,
+    `${ModuleCode.GRNFieldConfig}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get GRN field configurations by step number" })
   @ApiResponse({
@@ -151,7 +151,7 @@ export class GRNFieldConfigController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a GRN field configuration by ID" })
   @ApiResponse({
     status: 200,
@@ -175,7 +175,7 @@ export class GRNFieldConfigController {
   }
 
   @Put(":id")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Update a GRN field configuration" })
   @ApiResponse({
     status: 200,
@@ -209,7 +209,7 @@ export class GRNFieldConfigController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a GRN field configuration" })
   @ApiResponse({
     status: 200,
@@ -237,7 +237,7 @@ export class GRNFieldConfigController {
   }
 
   @Patch(":id/toggle-status")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Toggle field configuration active status" })
   @ApiResponse({
     status: 200,
@@ -266,7 +266,7 @@ export class GRNFieldConfigController {
   }
 
   @Post("step/:stepNumber/reorder")
-  @RolePermission(`${ModuleCode.GRN_FIELD_CONFIG}:${OperationCode.UPDATE}`)
+  @RolePermission(`${ModuleCode.GRNFieldConfig}:${OperationCode.Update}`)
   @ApiOperation({ summary: "Reorder fields for a step" })
   @ApiResponse({ status: 200, description: "Fields reordered successfully" })
   async reorderFields(

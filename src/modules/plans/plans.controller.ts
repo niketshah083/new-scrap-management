@@ -29,7 +29,7 @@ export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.PLAN}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Plan}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new plan" })
   @ApiResponse({ status: 201, description: "Plan created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -54,8 +54,8 @@ export class PlansController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.PLAN}:${OperationCode.LIST}`,
-    `${ModuleCode.PLAN}:${OperationCode.READ}`
+    `${ModuleCode.Plan}:${OperationCode.List}`,
+    `${ModuleCode.Plan}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all plans" })
   @ApiResponse({ status: 200, description: "Plans retrieved successfully" })
@@ -73,7 +73,7 @@ export class PlansController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.PLAN}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Plan}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a plan by ID" })
   @ApiResponse({ status: 200, description: "Plan retrieved successfully" })
   @ApiResponse({ status: 404, description: "Plan not found" })
@@ -92,8 +92,8 @@ export class PlansController {
 
   @Put(":id")
   @RolePermission(
-    `${ModuleCode.PLAN}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PLAN}:${OperationCode.EDIT}`
+    `${ModuleCode.Plan}:${OperationCode.Update}`,
+    `${ModuleCode.Plan}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Update a plan" })
   @ApiResponse({ status: 200, description: "Plan updated successfully" })
@@ -120,7 +120,7 @@ export class PlansController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.PLAN}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Plan}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a plan" })
   @ApiResponse({ status: 200, description: "Plan deleted successfully" })
   @ApiResponse({ status: 404, description: "Plan not found" })
@@ -142,8 +142,8 @@ export class PlansController {
 
   @Post(":id/modules")
   @RolePermission(
-    `${ModuleCode.PLAN}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PLAN}:${OperationCode.EDIT}`
+    `${ModuleCode.Plan}:${OperationCode.Update}`,
+    `${ModuleCode.Plan}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Assign modules to a plan" })
   @ApiResponse({ status: 200, description: "Modules assigned successfully" })
@@ -171,8 +171,8 @@ export class PlansController {
 
   @Delete(":id/modules")
   @RolePermission(
-    `${ModuleCode.PLAN}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PLAN}:${OperationCode.EDIT}`
+    `${ModuleCode.Plan}:${OperationCode.Update}`,
+    `${ModuleCode.Plan}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Remove modules from a plan" })
   @ApiResponse({ status: 200, description: "Modules removed successfully" })
@@ -200,8 +200,8 @@ export class PlansController {
 
   @Patch(":id/toggle-status")
   @RolePermission(
-    `${ModuleCode.PLAN}:${OperationCode.UPDATE}`,
-    `${ModuleCode.PLAN}:${OperationCode.EDIT}`
+    `${ModuleCode.Plan}:${OperationCode.Update}`,
+    `${ModuleCode.Plan}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Toggle plan active status" })
   @ApiResponse({ status: 200, description: "Plan status updated successfully" })

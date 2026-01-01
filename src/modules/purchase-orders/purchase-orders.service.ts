@@ -2,10 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { PurchaseOrder } from "../../entities/purchase-order.entity";
+import { Repository, In } from "typeorm";
+import { PurchaseOrder, POStatus } from "../../entities/purchase-order.entity";
 import { PurchaseOrderItem } from "../../entities/purchase-order-item.entity";
 import { Vendor } from "../../entities/vendor.entity";
 import { Material } from "../../entities/material.entity";
@@ -73,7 +74,7 @@ export class PurchaseOrdersService {
       vendorId: createDto.vendorId,
       expectedDeliveryDate: new Date(createDto.expectedDeliveryDate),
       notes: createDto.notes,
-      status: "pending",
+      status: POStatus.DRAFT,
       createdBy: userId,
       updatedBy: userId,
     });
@@ -244,5 +245,98 @@ export class PurchaseOrdersService {
    */
   async isExternalDbEnabled(tenantId: number): Promise<boolean> {
     return this.dataSourceFactory.isExternalDbEnabled(tenantId);
+  }
+
+  /**
+   * Submit PO for approval - changes status from draft to pending_approval
+   */
+  async submitForApproval(
+    tenantId: number,
+    id: number,
+    userId: number
+  ): Promise<PurchaseOrder> {
+    const purchaseOrder = await this.findOne(tenantId, id);
+
+    if (purchaseOrder.status !== POStatus.DRAFT) {
+      throw new BadRequestException(
+        `Cannot submit PO for approval. Current status is "${purchaseOrder.status}". Only draft POs can be submitted.`
+      );
+    }
+
+    purchaseOrder.status = POStatus.PENDING_APPROVAL;
+    purchaseOrder.updatedBy = userId;
+
+    await this.purchaseOrderRepository.save(purchaseOrder);
+    return this.findOne(tenantId, id);
+  }
+
+  /**
+   * Approve PO - changes status from pending_approval to approved
+   */
+  async approve(
+    tenantId: number,
+    id: number,
+    userId: number
+  ): Promise<PurchaseOrder> {
+    const purchaseOrder = await this.findOne(tenantId, id);
+
+    if (purchaseOrder.status !== POStatus.PENDING_APPROVAL) {
+      throw new BadRequestException(
+        `Cannot approve PO. Current status is "${purchaseOrder.status}". Only pending approval POs can be approved.`
+      );
+    }
+
+    purchaseOrder.status = POStatus.APPROVED;
+    purchaseOrder.approvedBy = userId;
+    purchaseOrder.approvedAt = new Date();
+    purchaseOrder.updatedBy = userId;
+
+    await this.purchaseOrderRepository.save(purchaseOrder);
+    return this.findOne(tenantId, id);
+  }
+
+  /**
+   * Reject PO - changes status from pending_approval to rejected
+   */
+  async reject(
+    tenantId: number,
+    id: number,
+    userId: number,
+    rejectionReason: string
+  ): Promise<PurchaseOrder> {
+    const purchaseOrder = await this.findOne(tenantId, id);
+
+    if (purchaseOrder.status !== POStatus.PENDING_APPROVAL) {
+      throw new BadRequestException(
+        `Cannot reject PO. Current status is "${purchaseOrder.status}". Only pending approval POs can be rejected.`
+      );
+    }
+
+    if (!rejectionReason || rejectionReason.trim() === "") {
+      throw new BadRequestException("Rejection reason is required");
+    }
+
+    purchaseOrder.status = POStatus.REJECTED;
+    purchaseOrder.approvedBy = userId;
+    purchaseOrder.approvedAt = new Date();
+    purchaseOrder.rejectionReason = rejectionReason;
+    purchaseOrder.updatedBy = userId;
+
+    await this.purchaseOrderRepository.save(purchaseOrder);
+    return this.findOne(tenantId, id);
+  }
+
+  /**
+   * Find approved POs for GRN creation
+   */
+  async findApprovedOrders(tenantId: number): Promise<PurchaseOrder[]> {
+    return this.purchaseOrderRepository.find({
+      where: {
+        tenantId,
+        status: In([POStatus.APPROVED, POStatus.PARTIAL]),
+      },
+      relations: ["vendor", "items", "items.material"],
+      order: { expectedDeliveryDate: "ASC" },
+    });
   }
 }

@@ -37,7 +37,9 @@ export class AuthModule {
         { path: "api/docs", method: RequestMethod.GET },
         { path: "api/docs/(.*)", method: RequestMethod.GET },
         { path: "api/seeder/seed", method: RequestMethod.POST },
-        { path: "seeder/seed", method: RequestMethod.POST }
+        { path: "seeder/seed", method: RequestMethod.POST },
+        { path: "api/seeder/migrate-permissions", method: RequestMethod.POST },
+        { path: "seeder/migrate-permissions", method: RequestMethod.POST }
       )
       .forRoutes("*");
   }

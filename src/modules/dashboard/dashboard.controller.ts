@@ -18,7 +18,7 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get("summary")
-  @RolePermission(`${ModuleCode.DASHBOARD}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Dashboard}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get dashboard summary" })
   @ApiResponse({
     status: 200,
@@ -41,8 +41,8 @@ export class DashboardController {
 
   @Get("grn/today")
   @RolePermission(
-    `${ModuleCode.DASHBOARD}:${OperationCode.READ}`,
-    `${ModuleCode.GRN}:${OperationCode.LIST}`
+    `${ModuleCode.Dashboard}:${OperationCode.Read}`,
+    `${ModuleCode.GRN}:${OperationCode.List}`
   )
   @ApiOperation({ summary: "Get today's GRN statistics" })
   @ApiResponse({
@@ -66,8 +66,8 @@ export class DashboardController {
 
   @Get("qc/pending-count")
   @RolePermission(
-    `${ModuleCode.DASHBOARD}:${OperationCode.READ}`,
-    `${ModuleCode.QC}:${OperationCode.LIST}`
+    `${ModuleCode.Dashboard}:${OperationCode.Read}`,
+    `${ModuleCode.QC}:${OperationCode.List}`
   )
   @ApiOperation({ summary: "Get pending QC count" })
   @ApiResponse({
@@ -91,8 +91,8 @@ export class DashboardController {
 
   @Get("gate-pass/active-count")
   @RolePermission(
-    `${ModuleCode.DASHBOARD}:${OperationCode.READ}`,
-    `${ModuleCode.GATE_PASS}:${OperationCode.LIST}`
+    `${ModuleCode.Dashboard}:${OperationCode.Read}`,
+    `${ModuleCode.GatePass}:${OperationCode.List}`
   )
   @ApiOperation({ summary: "Get active gate pass count" })
   @ApiResponse({
@@ -116,8 +116,8 @@ export class DashboardController {
 
   @Get("grn/recent")
   @RolePermission(
-    `${ModuleCode.DASHBOARD}:${OperationCode.READ}`,
-    `${ModuleCode.GRN}:${OperationCode.LIST}`
+    `${ModuleCode.Dashboard}:${OperationCode.Read}`,
+    `${ModuleCode.GRN}:${OperationCode.List}`
   )
   @ApiOperation({ summary: "Get recent GRN activity" })
   @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
@@ -170,8 +170,8 @@ export class DashboardController {
 
   @Get("grn/stats")
   @RolePermission(
-    `${ModuleCode.DASHBOARD}:${OperationCode.READ}`,
-    `${ModuleCode.GRN}:${OperationCode.LIST}`
+    `${ModuleCode.Dashboard}:${OperationCode.Read}`,
+    `${ModuleCode.GRN}:${OperationCode.List}`
   )
   @ApiOperation({ summary: "Get GRN statistics for a date range" })
   @ApiQuery({ name: "startDate", type: String, example: "2024-01-01" })

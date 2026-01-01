@@ -28,7 +28,7 @@ export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
   @Post()
-  @RolePermission(`${ModuleCode.SUBSCRIPTION}:${OperationCode.CREATE}`)
+  @RolePermission(`${ModuleCode.Subscription}:${OperationCode.Create}`)
   @ApiOperation({ summary: "Create a new subscription" })
   @ApiResponse({
     status: 201,
@@ -61,8 +61,8 @@ export class SubscriptionsController {
 
   @Get()
   @RolePermission(
-    `${ModuleCode.SUBSCRIPTION}:${OperationCode.LIST}`,
-    `${ModuleCode.SUBSCRIPTION}:${OperationCode.READ}`
+    `${ModuleCode.Subscription}:${OperationCode.List}`,
+    `${ModuleCode.Subscription}:${OperationCode.Read}`
   )
   @ApiOperation({ summary: "Get all subscriptions" })
   @ApiResponse({
@@ -83,7 +83,7 @@ export class SubscriptionsController {
   }
 
   @Get(":id")
-  @RolePermission(`${ModuleCode.SUBSCRIPTION}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Subscription}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get a subscription by ID" })
   @ApiResponse({
     status: 200,
@@ -104,7 +104,7 @@ export class SubscriptionsController {
   }
 
   @Get("tenant/:tenantId")
-  @RolePermission(`${ModuleCode.SUBSCRIPTION}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Subscription}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get subscription by tenant ID" })
   @ApiResponse({
     status: 200,
@@ -127,8 +127,8 @@ export class SubscriptionsController {
 
   @Put(":id")
   @RolePermission(
-    `${ModuleCode.SUBSCRIPTION}:${OperationCode.UPDATE}`,
-    `${ModuleCode.SUBSCRIPTION}:${OperationCode.EDIT}`
+    `${ModuleCode.Subscription}:${OperationCode.Update}`,
+    `${ModuleCode.Subscription}:${OperationCode.Edit}`
   )
   @ApiOperation({ summary: "Update a subscription" })
   @ApiResponse({
@@ -158,7 +158,7 @@ export class SubscriptionsController {
   }
 
   @Delete(":id")
-  @RolePermission(`${ModuleCode.SUBSCRIPTION}:${OperationCode.DELETE}`)
+  @RolePermission(`${ModuleCode.Subscription}:${OperationCode.Delete}`)
   @ApiOperation({ summary: "Delete a subscription" })
   @ApiResponse({
     status: 200,
@@ -182,7 +182,7 @@ export class SubscriptionsController {
   }
 
   @Get("expiring/:days")
-  @RolePermission(`${ModuleCode.SUBSCRIPTION}:${OperationCode.READ}`)
+  @RolePermission(`${ModuleCode.Subscription}:${OperationCode.Read}`)
   @ApiOperation({ summary: "Get subscriptions expiring within specified days" })
   @ApiResponse({
     status: 200,
