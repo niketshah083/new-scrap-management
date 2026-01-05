@@ -10,10 +10,12 @@ import { GRNFieldValue } from "../../entities/grn-field-value.entity";
 import { GRNFieldConfig } from "../../entities/grn-field-config.entity";
 import { Vendor } from "../../entities/vendor.entity";
 import { PurchaseOrder } from "../../entities/purchase-order.entity";
+import { RFIDCard, RFIDCardStatus } from "../../entities/rfid-card.entity";
 import { UploadsService } from "../uploads/uploads.service";
 import { DataSourceFactoryService } from "../data-source";
 import {
   CreateGRNDto,
+  UpdateGRNStep1Dto,
   UpdateGRNStep2Dto,
   UpdateGRNStep3Dto,
   UpdateGRNStep4Dto,
@@ -34,6 +36,8 @@ export class GRNService {
     private vendorRepository: Repository<Vendor>,
     @InjectRepository(PurchaseOrder)
     private purchaseOrderRepository: Repository<PurchaseOrder>,
+    @InjectRepository(RFIDCard)
+    private rfidCardRepository: Repository<RFIDCard>,
     private uploadsService: UploadsService,
     private dataSourceFactory: DataSourceFactoryService
   ) {}
@@ -146,12 +150,100 @@ export class GRNService {
 
     const savedGrn = await this.grnRepository.save(grn);
 
+    // Handle RFID card assignment if provided
+    if (createDto.rfidCardNumber) {
+      const rfidCard = await this.rfidCardRepository.findOne({
+        where: { cardNumber: createDto.rfidCardNumber, tenantId },
+      });
+
+      if (rfidCard && rfidCard.status === RFIDCardStatus.AVAILABLE) {
+        // Assign the card to this GRN
+        rfidCard.grnId = savedGrn.id;
+        rfidCard.status = RFIDCardStatus.ASSIGNED;
+        rfidCard.assignedAt = new Date();
+        rfidCard.updatedBy = userId;
+        await this.rfidCardRepository.save(rfidCard);
+
+        // Update GRN with card reference
+        savedGrn.rfidCardId = rfidCard.id;
+        await this.grnRepository.save(savedGrn);
+      }
+    }
+
     // Save dynamic field values for Step 1
     if (createDto.fieldValues && createDto.fieldValues.length > 0) {
       await this.saveFieldValues(savedGrn.id, createDto.fieldValues, userId);
     }
 
-    return savedGrn;
+    return this.findOne(tenantId, savedGrn.id);
+  }
+
+  // Step 1 - Gate Entry (Update/Edit)
+  async updateStep1(
+    tenantId: number,
+    id: number,
+    updateDto: UpdateGRNStep1Dto,
+    userId: number
+  ): Promise<GRN> {
+    const grn = await this.findOne(tenantId, id);
+
+    // Allow editing Step 1 if GRN exists (step 1 is always completed for existing GRNs)
+    if (grn.currentStep < 2) {
+      throw new BadRequestException(
+        "Cannot update Step 1. GRN creation is not complete."
+      );
+    }
+
+    // Update static fields if provided
+    if (updateDto.purchaseOrderId !== undefined) {
+      if (updateDto.purchaseOrderId) {
+        const purchaseOrder = await this.purchaseOrderRepository.findOne({
+          where: { id: updateDto.purchaseOrderId, tenantId },
+        });
+        if (!purchaseOrder) {
+          throw new NotFoundException(
+            `Purchase Order with ID ${updateDto.purchaseOrderId} not found`
+          );
+        }
+        grn.purchaseOrderId = updateDto.purchaseOrderId;
+        // Auto-update vendor if not explicitly set
+        if (updateDto.vendorId === undefined && purchaseOrder.vendorId) {
+          grn.vendorId = purchaseOrder.vendorId;
+        }
+      } else {
+        grn.purchaseOrderId = null;
+      }
+    }
+
+    if (updateDto.vendorId !== undefined) {
+      if (updateDto.vendorId) {
+        const vendor = await this.vendorRepository.findOne({
+          where: { id: updateDto.vendorId, tenantId },
+        });
+        if (!vendor) {
+          throw new NotFoundException(
+            `Vendor with ID ${updateDto.vendorId} not found`
+          );
+        }
+        grn.vendorId = updateDto.vendorId;
+      } else {
+        grn.vendorId = null;
+      }
+    }
+
+    if (updateDto.truckNumber !== undefined) {
+      grn.truckNumber = updateDto.truckNumber;
+    }
+
+    grn.updatedBy = userId;
+    await this.grnRepository.save(grn);
+
+    // Save dynamic field values for Step 1
+    if (updateDto.fieldValues && updateDto.fieldValues.length > 0) {
+      await this.saveFieldValues(grn.id, updateDto.fieldValues, userId);
+    }
+
+    return this.findOne(tenantId, grn.id);
   }
 
   async findAll(tenantId: number): Promise<GRN[]> {
@@ -172,6 +264,7 @@ export class GRNService {
         "purchaseOrder.items.material",
         "fieldValues",
         "fieldValues.fieldConfig",
+        "rfidCard",
       ],
     });
 
@@ -253,13 +346,17 @@ export class GRNService {
   ): Promise<GRN> {
     const grn = await this.findOne(tenantId, id);
 
-    if (grn.currentStep !== 2) {
+    // Allow editing if at step 2 OR if step 2 was already completed (currentStep > 2)
+    if (grn.currentStep < 2) {
       throw new BadRequestException(
-        "Cannot update Step 2. GRN is not at the correct step."
+        "Cannot update Step 2. Complete Step 1 first."
       );
     }
 
-    grn.currentStep = 3; // Move to Step 3 after completing Step 2
+    // Only advance step if we're at step 2 (not editing a completed step)
+    if (grn.currentStep === 2) {
+      grn.currentStep = 3;
+    }
     grn.updatedBy = userId;
 
     const savedGrn = await this.grnRepository.save(grn);
@@ -281,13 +378,17 @@ export class GRNService {
   ): Promise<GRN> {
     const grn = await this.findOne(tenantId, id);
 
-    if (grn.currentStep !== 3) {
+    // Allow editing if at step 3 OR if step 3 was already completed (currentStep > 3)
+    if (grn.currentStep < 3) {
       throw new BadRequestException(
-        "Cannot update Step 3. GRN is not at the correct step."
+        "Cannot update Step 3. Complete previous steps first."
       );
     }
 
-    grn.currentStep = 4; // Move to Step 4 after completing Step 3
+    // Only advance step if we're at step 3 (not editing a completed step)
+    if (grn.currentStep === 3) {
+      grn.currentStep = 4;
+    }
     grn.updatedBy = userId;
 
     const savedGrn = await this.grnRepository.save(grn);
@@ -309,9 +410,10 @@ export class GRNService {
   ): Promise<GRN> {
     const grn = await this.findOne(tenantId, id);
 
-    if (grn.currentStep !== 4) {
+    // Allow editing if at step 4 OR if step 4 was already completed (currentStep > 4)
+    if (grn.currentStep < 4) {
       throw new BadRequestException(
-        "Cannot update Step 4. GRN is not at the correct step."
+        "Cannot update Step 4. Complete previous steps first."
       );
     }
 
@@ -343,7 +445,10 @@ export class GRNService {
       updatedGrn.netWeight = netWeight;
     }
 
-    updatedGrn.currentStep = 5; // Move to Step 5 after completing Step 4
+    // Only advance step if we're at step 4 (not editing a completed step)
+    if (grn.currentStep === 4) {
+      updatedGrn.currentStep = 5;
+    }
     updatedGrn.updatedBy = userId;
 
     await this.grnRepository.save(updatedGrn);
@@ -360,9 +465,10 @@ export class GRNService {
   ): Promise<GRN> {
     const grn = await this.findOne(tenantId, id);
 
-    if (grn.currentStep !== 5) {
+    // Allow editing if at step 5 OR if step 5 was already completed (currentStep > 5)
+    if (grn.currentStep < 5) {
       throw new BadRequestException(
-        "Cannot update Step 5. GRN is not at the correct step."
+        "Cannot update Step 5. Complete previous steps first."
       );
     }
 
@@ -384,11 +490,13 @@ export class GRNService {
     grn.reviewedAt = new Date();
     grn.updatedBy = userId;
 
-    // Update status and step based on approval
-    if (updateDto.approvalStatus === ApprovalStatus.APPROVED) {
-      grn.currentStep = 6; // Move to Gate Pass step
-    } else if (updateDto.approvalStatus === ApprovalStatus.REJECTED) {
-      grn.status = "rejected";
+    // Only advance step if we're at step 5 (not editing a completed step)
+    if (grn.currentStep === 5) {
+      if (updateDto.approvalStatus === ApprovalStatus.APPROVED) {
+        grn.currentStep = 6; // Move to Gate Pass step
+      } else if (updateDto.approvalStatus === ApprovalStatus.REJECTED) {
+        grn.status = "rejected";
+      }
     }
 
     const savedGrn = await this.grnRepository.save(grn);

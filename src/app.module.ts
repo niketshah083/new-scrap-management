@@ -21,6 +21,7 @@ import { ConfigModule as AppConfigModule } from "./modules/config/config.module"
 import { SeederModule } from "./modules/seeder/seeder.module";
 import { ExternalConnectionModule } from "./modules/external-connection/external-connection.module";
 import { DataSourceModule } from "./modules/data-source/data-source.module";
+import { RFIDModule } from "./modules/rfid/rfid.module";
 import { LogInterceptor } from "./common/interceptors/log.interceptor";
 import { GlobalExceptionFilter } from "./common/filters/global-exception.filter";
 import { PermissionGuard } from "./common/guards/permission.guard";
@@ -68,6 +69,7 @@ import { ResponseInterceptor } from "./common";
     UploadsModule,
     AppConfigModule,
     SeederModule,
+    RFIDModule,
   ],
   controllers: [],
   providers: [

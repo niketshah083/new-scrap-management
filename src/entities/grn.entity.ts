@@ -1,8 +1,16 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { Tenant } from "./tenant.entity";
 import { PurchaseOrder } from "./purchase-order.entity";
 import { Vendor } from "./vendor.entity";
+import { RFIDCard } from "./rfid-card.entity";
 
 @Entity("grns")
 export class GRN extends BaseEntity {
@@ -22,6 +30,14 @@ export class GRN extends BaseEntity {
   @ManyToOne(() => PurchaseOrder, { nullable: true })
   @JoinColumn({ name: "purchase_order_id" })
   purchaseOrder: PurchaseOrder;
+
+  // RFID Card assignment
+  @Column({ name: "rfid_card_id", nullable: true })
+  rfidCardId: number | null;
+
+  @OneToOne(() => RFIDCard, { nullable: true })
+  @JoinColumn({ name: "rfid_card_id" })
+  rfidCard: RFIDCard;
 
   // External PO reference (used when external DB is enabled)
   @Column({ name: "external_po_id", length: 100, nullable: true })

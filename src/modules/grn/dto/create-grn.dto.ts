@@ -64,6 +64,15 @@ export class CreateGRNDto {
   truckNumber: string;
 
   @ApiProperty({
+    description: "RFID card number to assign to this GRN",
+    example: "0039781607",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  rfidCardNumber?: string;
+
+  @ApiProperty({
     description: "Dynamic field values for Step 1",
     type: [FieldValueDto],
     required: false,

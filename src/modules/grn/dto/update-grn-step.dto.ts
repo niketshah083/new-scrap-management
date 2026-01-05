@@ -41,6 +41,47 @@ export class FieldValueDto {
 }
 
 /**
+ * Step 1 - Gate Entry (Update/Edit)
+ * Static fields: purchaseOrderId, vendorId, truckNumber
+ * Dynamic fields: any configured for step 1
+ */
+export class UpdateGRNStep1Dto {
+  @ApiProperty({
+    description: "Purchase Order ID",
+    example: 1,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  purchaseOrderId?: number;
+
+  @ApiProperty({ description: "Vendor ID", example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  vendorId?: number;
+
+  @ApiProperty({
+    description: "Truck number",
+    example: "MH-12-AB-1234",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  truckNumber?: string;
+
+  @ApiProperty({
+    description: "Dynamic field values for Step 1",
+    type: [FieldValueDto],
+    required: false,
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FieldValueDto)
+  @IsOptional()
+  fieldValues?: FieldValueDto[];
+}
+
+/**
  * Step 2 - Initial Weighing
  * Dynamic fields: gross_weight (required), gross_weight_image (optional, max 3 files)
  */

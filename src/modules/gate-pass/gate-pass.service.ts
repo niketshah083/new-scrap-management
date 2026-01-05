@@ -7,6 +7,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, LessThan } from "typeorm";
 import { GatePass } from "../../entities/gate-pass.entity";
 import { GRN } from "../../entities/grn.entity";
+import { RFIDCard, RFIDCardStatus } from "../../entities/rfid-card.entity";
 import { CreateGatePassDto } from "./dto";
 
 @Injectable()
@@ -15,7 +16,9 @@ export class GatePassService {
     @InjectRepository(GatePass)
     private gatePassRepository: Repository<GatePass>,
     @InjectRepository(GRN)
-    private grnRepository: Repository<GRN>
+    private grnRepository: Repository<GRN>,
+    @InjectRepository(RFIDCard)
+    private rfidCardRepository: Repository<RFIDCard>
   ) {}
 
   private async generatePassNumber(tenantId: number): Promise<string> {
@@ -231,6 +234,22 @@ export class GatePassService {
       grn.currentStep = 7;
       grn.updatedBy = userId;
       await this.grnRepository.save(grn);
+
+      // Unassign RFID card if one was assigned
+      if (grn.rfidCardId) {
+        const rfidCard = await this.rfidCardRepository.findOne({
+          where: { id: grn.rfidCardId },
+        });
+        if (rfidCard) {
+          rfidCard.grnId = null;
+          rfidCard.status = RFIDCardStatus.AVAILABLE;
+          rfidCard.assignedAt = null;
+          rfidCard.updatedBy = userId;
+          await this.rfidCardRepository.save(rfidCard);
+        }
+        grn.rfidCardId = null;
+        await this.grnRepository.save(grn);
+      }
     }
 
     return savedPass;

@@ -19,6 +19,7 @@ import {
 import { GRNService } from "./grn.service";
 import {
   CreateGRNDto,
+  UpdateGRNStep1Dto,
   UpdateGRNStep2Dto,
   UpdateGRNStep3Dto,
   UpdateGRNStep4Dto,
@@ -191,6 +192,35 @@ export class GRNController {
       return {
         success: true,
         message: "GRN retrieved successfully",
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Step 1 - Gate Entry (Update/Edit)
+  @Put(":id/step1")
+  @RolePermission(`${ModuleCode.GRN}:${OperationCode.STEP1_GATE_ENTRY}`)
+  @ApiOperation({ summary: "Update GRN Step 1 - Gate Entry (Edit)" })
+  @ApiResponse({ status: 200, description: "GRN updated successfully" })
+  @ApiResponse({ status: 400, description: "Bad request" })
+  @ApiResponse({ status: 404, description: "GRN not found" })
+  async updateStep1(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateDto: UpdateGRNStep1Dto,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const data = await this.grnService.updateStep1(
+        req.user.tenantId,
+        id,
+        updateDto,
+        req.user.userId
+      );
+      return {
+        success: true,
+        message: "Gate entry data updated successfully",
         data,
       };
     } catch (error) {

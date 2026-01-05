@@ -4,9 +4,10 @@ import { GatePassController } from "./gate-pass.controller";
 import { GatePassService } from "./gate-pass.service";
 import { GatePass } from "../../entities/gate-pass.entity";
 import { GRN } from "../../entities/grn.entity";
+import { RFIDCard } from "../../entities/rfid-card.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GatePass, GRN])],
+  imports: [TypeOrmModule.forFeature([GatePass, GRN, RFIDCard])],
   controllers: [GatePassController],
   providers: [GatePassService],
   exports: [GatePassService],
