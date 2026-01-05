@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Delete,
+  Get,
   Param,
   UseInterceptors,
   UploadedFile,
@@ -284,6 +285,25 @@ export class UploadsController {
         success: true,
         message: "File deleted successfully",
         data: null,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get("base64/:key(*)")
+  @RolePermission(`${ModuleCode.Upload}:${OperationCode.Read}`)
+  @ApiOperation({ summary: "Get file as base64 (for PDF generation)" })
+  @ApiResponse({ status: 200, description: "File retrieved as base64" })
+  @ApiResponse({ status: 404, description: "File not found" })
+  async getFileAsBase64(@Param("key") key: string) {
+    try {
+      const data = await this.uploadsService.getFileAsBase64(key);
+
+      return {
+        success: true,
+        message: "File retrieved successfully",
+        data,
       };
     } catch (error) {
       throw error;

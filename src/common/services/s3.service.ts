@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import * as fs from 'fs-extra';
-import { Upload } from '@aws-sdk/lib-storage';
-import { dirname, join } from 'path';
-import { promisify } from 'util';
-import { pipeline } from 'stream';
-import { createWriteStream, existsSync, mkdirSync, readFileSync } from 'fs';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  S3Client,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import * as fs from "fs-extra";
+import { Upload } from "@aws-sdk/lib-storage";
+import { dirname, join } from "path";
+import { promisify } from "util";
+import { pipeline } from "stream";
+import { createWriteStream, existsSync, mkdirSync, readFileSync } from "fs";
 
 @Injectable()
 export class S3Service {
@@ -21,13 +25,19 @@ export class S3Service {
       },
     });
   }
-  async getFilePathFromUrl(fileKey: string, bucketName: string, expiresIn: number = 3600): Promise<string> {
+  async getFilePathFromUrl(
+    fileKey: string,
+    bucketName: string,
+    expiresIn: number = 3600
+  ): Promise<string> {
     try {
       const command = new GetObjectCommand({
         Bucket: bucketName,
         Key: fileKey,
       });
-      const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
+      const signedUrl = await getSignedUrl(this.s3Client, command, {
+        expiresIn,
+      });
 
       return signedUrl;
     } catch (error) {
@@ -35,19 +45,33 @@ export class S3Service {
     }
   }
 
-  async uploadS3File(file: Express.Multer.File, bucketName: string, fileKey: string): Promise<string> {
+  async uploadS3File(
+    file: Express.Multer.File,
+    bucketName: string,
+    fileKey: string
+  ): Promise<string> {
     // Check if the file path exists
     if (!file || !file.path) {
-      throw new Error('File not provided or path is missing');
+      throw new Error("File not provided or path is missing");
     }
 
     // Create a read stream from the file path
     const fileStream = fs.createReadStream(file.path);
 
-    return await this.uploadS3Stream(fileStream, file.mimetype, bucketName, fileKey);
+    return await this.uploadS3Stream(
+      fileStream,
+      file.mimetype,
+      bucketName,
+      fileKey
+    );
   }
 
-  async uploadS3Stream(fileStream: any, mimetype: string, bucketName: string, fileKey: string): Promise<string> {
+  async uploadS3Stream(
+    fileStream: any,
+    mimetype: string,
+    bucketName: string,
+    fileKey: string
+  ): Promise<string> {
     const uploader = new Upload({
       client: this.s3Client,
       params: {
@@ -63,8 +87,8 @@ export class S3Service {
       const result = await uploader.done();
       return result.Location; // Returns the URL of the uploaded file
     } catch (err) {
-      console.error(err, 'Upload failed');
-      throw new Error('Failed to upload file');
+      console.error(err, "Upload failed");
+      throw new Error("Failed to upload file");
     }
   }
 
@@ -83,8 +107,13 @@ export class S3Service {
     }
   }
 
-  async downloadFileFromS3(bucketName: string, fileKey: string, path: string, fileName: string): Promise<Express.Multer.File> {
-    const tempFilePath = join(__dirname, '../../../', path, fileName);
+  async downloadFileFromS3(
+    bucketName: string,
+    fileKey: string,
+    path: string,
+    fileName: string
+  ): Promise<Express.Multer.File> {
+    const tempFilePath = join(__dirname, "../../../", path, fileName);
     const tempDir = dirname(tempFilePath);
     if (!existsSync(tempDir)) {
       mkdirSync(tempDir, { recursive: true });
@@ -95,20 +124,24 @@ export class S3Service {
         Key: fileKey,
       });
 
-      const { Body, ContentType, ContentLength } = await this.s3Client.send(command);
+      const { Body, ContentType, ContentLength } =
+        await this.s3Client.send(command);
 
-      if (!Body) throw new Error('File not found in S3');
+      if (!Body) throw new Error("File not found in S3");
 
       const streamPipeline = promisify(pipeline);
-      await streamPipeline(Body as NodeJS.ReadableStream, createWriteStream(tempFilePath));
+      await streamPipeline(
+        Body as NodeJS.ReadableStream,
+        createWriteStream(tempFilePath)
+      );
 
       const buffer = readFileSync(tempFilePath);
 
       const multerFile: Express.Multer.File = {
-        fieldname: 'file',
+        fieldname: "file",
         originalname: fileName,
-        encoding: '7bit',
-        mimetype: ContentType || 'application/octet-stream',
+        encoding: "7bit",
+        mimetype: ContentType || "application/octet-stream",
         size: ContentLength ?? buffer.length,
         destination: tempDir,
         filename: fileName,
@@ -120,6 +153,39 @@ export class S3Service {
       return multerFile;
     } catch (error) {
       throw new Error(`Error downloading file: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get file from S3 as buffer (for base64 conversion)
+   */
+  async getFileAsBuffer(
+    bucketName: string,
+    fileKey: string
+  ): Promise<{ buffer: Buffer; contentType: string }> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: fileKey,
+      });
+
+      const { Body, ContentType } = await this.s3Client.send(command);
+
+      if (!Body) throw new Error("File not found in S3");
+
+      // Convert stream to buffer
+      const chunks: Buffer[] = [];
+      for await (const chunk of Body as AsyncIterable<Buffer>) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
+      return {
+        buffer,
+        contentType: ContentType || "application/octet-stream",
+      };
+    } catch (error) {
+      throw new NotFoundException(`Error retrieving file: ${error.message}`);
     }
   }
 }

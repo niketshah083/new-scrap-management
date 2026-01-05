@@ -212,4 +212,33 @@ export class UploadsService {
     }
     return results;
   }
+
+  /**
+   * Get file from S3 as base64 string (for PDF generation, bypasses CORS)
+   */
+  async getFileAsBase64(
+    key: string
+  ): Promise<{ base64: string; contentType: string }> {
+    if (!key) {
+      throw new BadRequestException("File key is required");
+    }
+
+    try {
+      const { buffer, contentType } = await this.s3Service.getFileAsBuffer(
+        this.bucketName,
+        key
+      );
+
+      const base64 = buffer.toString("base64");
+      const dataUrl = `data:${contentType};base64,${base64}`;
+
+      return {
+        base64: dataUrl,
+        contentType,
+      };
+    } catch (error) {
+      console.error("Error getting file as base64:", error);
+      throw new BadRequestException(`Failed to get file: ${error.message}`);
+    }
+  }
 }
