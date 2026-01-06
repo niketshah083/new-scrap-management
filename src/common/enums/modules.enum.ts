@@ -20,6 +20,8 @@ export enum ModuleCode {
   Notification = "Notification",
   ExternalDbConfig = "ExternalDbConfig",
   RFID = "RFID",
+  Weighbridge = "Weighbridge",
+  Camera = "Camera",
 }
 
 export const ModuleDefinitions: Record<
@@ -105,5 +107,13 @@ export const ModuleDefinitions: Record<
   [ModuleCode.RFID]: {
     name: "RFID",
     description: "RFID card management and scanning",
+  },
+  [ModuleCode.Weighbridge]: {
+    name: "Weighbridge",
+    description: "Weighbridge device management and configuration",
+  },
+  [ModuleCode.Camera]: {
+    name: "Camera",
+    description: "Camera device management and configuration",
   },
 };

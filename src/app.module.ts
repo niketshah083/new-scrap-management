@@ -22,6 +22,9 @@ import { SeederModule } from "./modules/seeder/seeder.module";
 import { ExternalConnectionModule } from "./modules/external-connection/external-connection.module";
 import { DataSourceModule } from "./modules/data-source/data-source.module";
 import { RFIDModule } from "./modules/rfid/rfid.module";
+import { WeighbridgeModule } from "./modules/weighbridge/weighbridge.module";
+import { CameraModule } from "./modules/camera/camera.module";
+import { DeviceBridgeModule } from "./modules/device-bridge/device-bridge.module";
 import { LogInterceptor } from "./common/interceptors/log.interceptor";
 import { GlobalExceptionFilter } from "./common/filters/global-exception.filter";
 import { PermissionGuard } from "./common/guards/permission.guard";
@@ -70,6 +73,9 @@ import { ResponseInterceptor } from "./common";
     AppConfigModule,
     SeederModule,
     RFIDModule,
+    WeighbridgeModule,
+    CameraModule,
+    DeviceBridgeModule,
   ],
   controllers: [],
   providers: [

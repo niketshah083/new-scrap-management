@@ -17,3 +17,7 @@ export * from "./grn-field-value.entity";
 export * from "./gate-pass.entity";
 export * from "./qc-inspection.entity";
 export * from "./notification.entity";
+export * from "./weighbridge-master.entity";
+export * from "./weighbridge-config.entity";
+export * from "./camera-master.entity";
+export * from "./camera-config.entity";
