@@ -60,6 +60,13 @@ export class ExternalDbConfigResponseDto {
   externalDbMaterialTable: string | null;
 
   @ApiProperty({
+    description: "External database delivery order table name",
+    example: "delivery_orders",
+    nullable: true,
+  })
+  externalDbDeliveryOrderTable: string | null;
+
+  @ApiProperty({
     description: "Cache TTL in seconds",
     example: 300,
     nullable: true,
@@ -86,6 +93,108 @@ export class ExternalDbConfigResponseDto {
     nullable: true,
   })
   externalDbMaterialMappings: FieldMappingDto[] | null;
+
+  @ApiProperty({
+    description: "Field mappings for delivery order entity",
+    type: [FieldMappingDto],
+    nullable: true,
+  })
+  externalDbDeliveryOrderMappings: FieldMappingDto[] | null;
+
+  @ApiProperty({
+    description: "External database delivery order item table name",
+    example: "delivery_order_items",
+    nullable: true,
+  })
+  externalDbDeliveryOrderItemTable: string | null;
+
+  @ApiProperty({
+    description: "Relation key for linking DO to items (e.g., doNumber or id)",
+    example: "doNumber",
+    nullable: true,
+  })
+  externalDbDoItemRelationKey: string | null;
+
+  @ApiProperty({
+    description: "Field mappings for delivery order item entity",
+    type: [FieldMappingDto],
+    nullable: true,
+  })
+  externalDbDeliveryOrderItemMappings: FieldMappingDto[] | null;
+
+  // Vendor Join Configuration for Delivery Orders
+  @ApiProperty({
+    description: "Vendor table name for DO join (e.g., acmast)",
+    example: "acmast",
+    nullable: true,
+  })
+  externalDbDoVendorTable: string | null;
+
+  @ApiProperty({
+    description: "Foreign key in DO table pointing to vendor (e.g., party)",
+    example: "party",
+    nullable: true,
+  })
+  externalDbDoVendorFk: string | null;
+
+  @ApiProperty({
+    description: "Primary key in vendor table (e.g., id)",
+    example: "id",
+    nullable: true,
+  })
+  externalDbDoVendorPk: string | null;
+
+  @ApiProperty({
+    description: "Vendor name field in vendor table (e.g., acname, name)",
+    example: "acname",
+    nullable: true,
+  })
+  externalDbDoVendorNameField: string | null;
+
+  // Material Join Configuration for DO Items
+  @ApiProperty({
+    description: "Material table name for DO item join (e.g., item)",
+    example: "item",
+    nullable: true,
+  })
+  externalDbDoItemMaterialTable: string | null;
+
+  @ApiProperty({
+    description:
+      "Foreign key in DO items table pointing to material (e.g., itemcode)",
+    example: "itemcode",
+    nullable: true,
+  })
+  externalDbDoItemMaterialFk: string | null;
+
+  @ApiProperty({
+    description: "Primary key in material table (e.g., itemcode)",
+    example: "itemcode",
+    nullable: true,
+  })
+  externalDbDoItemMaterialPk: string | null;
+
+  @ApiProperty({
+    description: "Material name field in material table (e.g., itemname)",
+    example: "itemname",
+    nullable: true,
+  })
+  externalDbDoItemMaterialNameField: string | null;
+
+  // Transporter Configuration
+  @ApiProperty({
+    description: "External database transporter table name",
+    example: "transporters",
+    nullable: true,
+  })
+  externalDbTransporterTable: string | null;
+
+  @ApiProperty({
+    description: "Field mappings for transporter entity",
+    type: [FieldMappingDto],
+    nullable: true,
+  })
+  externalDbTransporterMappings: FieldMappingDto[] | null;
 
   @ApiProperty({
     description:

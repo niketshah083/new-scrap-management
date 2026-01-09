@@ -6,13 +6,19 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { RFIDCard, RFIDCardStatus } from "../../entities/rfid-card.entity";
+import {
+  RFIDCard,
+  RFIDCardStatus,
+  RFIDCardAssignmentType,
+} from "../../entities/rfid-card.entity";
 import { GRN } from "../../entities/grn.entity";
+import { DoProcessing } from "../../entities/do-processing.entity";
 import {
   CreateRFIDCardDto,
   UpdateRFIDCardDto,
   AssignRFIDCardDto,
   ScanRFIDCardDto,
+  AssignmentType,
 } from "./dto";
 
 @Injectable()
@@ -21,7 +27,9 @@ export class RFIDService {
     @InjectRepository(RFIDCard)
     private rfidCardRepository: Repository<RFIDCard>,
     @InjectRepository(GRN)
-    private grnRepository: Repository<GRN>
+    private grnRepository: Repository<GRN>,
+    @InjectRepository(DoProcessing)
+    private doProcessingRepository: Repository<DoProcessing>
   ) {}
 
   async create(
@@ -108,13 +116,13 @@ export class RFIDService {
   }
 
   /**
-   * Assign an RFID card to a GRN
+   * Assign an RFID card to a GRN or DO Processing
    */
   async assign(
     tenantId: number,
     assignDto: AssignRFIDCardDto,
     userId: number
-  ): Promise<{ card: RFIDCard; grn: GRN }> {
+  ): Promise<{ card: RFIDCard; grn?: GRN; doProcessing?: DoProcessing }> {
     // Find the card by card number
     const card = await this.rfidCardRepository.findOne({
       where: { cardNumber: assignDto.cardNumber, tenantId },
@@ -132,35 +140,78 @@ export class RFIDService {
       );
     }
 
-    // Find the GRN
-    const grn = await this.grnRepository.findOne({
-      where: { id: assignDto.grnId, tenantId },
-    });
+    // Determine assignment type
+    if (assignDto.grnId) {
+      // Assign to GRN
+      const grn = await this.grnRepository.findOne({
+        where: { id: assignDto.grnId, tenantId },
+      });
 
-    if (!grn) {
-      throw new NotFoundException(`GRN with ID ${assignDto.grnId} not found`);
+      if (!grn) {
+        throw new NotFoundException(`GRN with ID ${assignDto.grnId} not found`);
+      }
+
+      if (grn.rfidCardId) {
+        throw new BadRequestException("GRN already has an RFID card assigned");
+      }
+
+      // Assign the card to GRN
+      card.grnId = grn.id;
+      card.doProcessingId = null;
+      card.assignmentType = RFIDCardAssignmentType.GRN;
+      card.status = RFIDCardStatus.ASSIGNED;
+      card.assignedAt = new Date();
+      card.updatedBy = userId;
+
+      grn.rfidCardId = card.id;
+
+      await this.rfidCardRepository.save(card);
+      await this.grnRepository.save(grn);
+
+      return { card, grn };
+    } else if (assignDto.doProcessingId) {
+      // Assign to DO Processing
+      const doProcessing = await this.doProcessingRepository.findOne({
+        where: { id: assignDto.doProcessingId, tenantId },
+      });
+
+      if (!doProcessing) {
+        throw new NotFoundException(
+          `DO Processing with ID ${assignDto.doProcessingId} not found`
+        );
+      }
+
+      if (doProcessing.rfidCardId) {
+        throw new BadRequestException(
+          "DO Processing already has an RFID card assigned"
+        );
+      }
+
+      // Assign the card to DO Processing
+      card.doProcessingId = doProcessing.id;
+      card.grnId = null;
+      card.assignmentType = RFIDCardAssignmentType.DO_PROCESSING;
+      card.status = RFIDCardStatus.ASSIGNED;
+      card.assignedAt = new Date();
+      card.updatedBy = userId;
+
+      doProcessing.rfidCardId = card.id;
+      doProcessing.rfidTag = card.cardNumber;
+      doProcessing.rfidIssuedTime = new Date();
+
+      await this.rfidCardRepository.save(card);
+      await this.doProcessingRepository.save(doProcessing);
+
+      return { card, doProcessing };
+    } else {
+      throw new BadRequestException(
+        "Either grnId or doProcessingId must be provided"
+      );
     }
-
-    if (grn.rfidCardId) {
-      throw new BadRequestException("GRN already has an RFID card assigned");
-    }
-
-    // Assign the card
-    card.grnId = grn.id;
-    card.status = RFIDCardStatus.ASSIGNED;
-    card.assignedAt = new Date();
-    card.updatedBy = userId;
-
-    grn.rfidCardId = card.id;
-
-    await this.rfidCardRepository.save(card);
-    await this.grnRepository.save(grn);
-
-    return { card, grn };
   }
 
   /**
-   * Unassign an RFID card from its GRN
+   * Unassign an RFID card from its GRN or DO Processing
    */
   async unassign(
     tenantId: number,
@@ -177,24 +228,38 @@ export class RFIDService {
       );
     }
 
-    if (card.status !== RFIDCardStatus.ASSIGNED || !card.grnId) {
-      throw new BadRequestException(
-        "Card is not currently assigned to any GRN"
-      );
+    if (card.status !== RFIDCardStatus.ASSIGNED) {
+      throw new BadRequestException("Card is not currently assigned");
     }
 
-    // Update GRN to remove card reference
-    const grn = await this.grnRepository.findOne({
-      where: { id: card.grnId, tenantId },
-    });
+    // Unassign from GRN if assigned
+    if (card.grnId) {
+      const grn = await this.grnRepository.findOne({
+        where: { id: card.grnId, tenantId },
+      });
 
-    if (grn) {
-      grn.rfidCardId = null;
-      await this.grnRepository.save(grn);
+      if (grn) {
+        grn.rfidCardId = null;
+        await this.grnRepository.save(grn);
+      }
+    }
+
+    // Unassign from DO Processing if assigned
+    if (card.doProcessingId) {
+      const doProcessing = await this.doProcessingRepository.findOne({
+        where: { id: card.doProcessingId, tenantId },
+      });
+
+      if (doProcessing) {
+        doProcessing.rfidCardId = null;
+        await this.doProcessingRepository.save(doProcessing);
+      }
     }
 
     // Reset card
     card.grnId = null;
+    card.doProcessingId = null;
+    card.assignmentType = null;
     card.status = RFIDCardStatus.AVAILABLE;
     card.assignedAt = null;
     card.updatedBy = userId;
@@ -203,13 +268,17 @@ export class RFIDService {
   }
 
   /**
-   * Scan an RFID card - returns the linked GRN if assigned
+   * Scan an RFID card - returns the linked GRN or DO Processing if assigned
    */
   async scan(
     tenantId: number,
     scanDto: ScanRFIDCardDto,
     userId: number
-  ): Promise<{ card: RFIDCard; grn: GRN | null }> {
+  ): Promise<{
+    card: RFIDCard;
+    grn: GRN | null;
+    doProcessing: DoProcessing | null;
+  }> {
     const card = await this.rfidCardRepository.findOne({
       where: { cardNumber: scanDto.cardNumber, tenantId },
     });
@@ -234,7 +303,16 @@ export class RFIDService {
       });
     }
 
-    return { card, grn };
+    // Get linked DO Processing if assigned
+    let doProcessing: DoProcessing | null = null;
+    if (card.doProcessingId) {
+      doProcessing = await this.doProcessingRepository.findOne({
+        where: { id: card.doProcessingId, tenantId },
+        relations: ["items"],
+      });
+    }
+
+    return { card, grn, doProcessing };
   }
 
   /**

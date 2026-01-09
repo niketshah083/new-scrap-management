@@ -86,6 +86,108 @@ export const DEFAULT_MATERIAL_MAPPINGS: FieldMapping[] = [
 ];
 
 /**
+ * Default field mappings for delivery order entity
+ */
+export const DEFAULT_DELIVERY_ORDER_MAPPINGS: FieldMapping[] = [
+  { internalField: "id", externalField: "id", transform: "number" },
+  {
+    internalField: "doNumber",
+    externalField: "do_number",
+    transform: "string",
+  },
+  {
+    internalField: "vendorId",
+    externalField: "vendor_id",
+    transform: "number",
+  },
+  { internalField: "doDate", externalField: "do_date", transform: "date" },
+  {
+    internalField: "vehicleNo",
+    externalField: "vehicle_no",
+    transform: "string",
+  },
+  {
+    internalField: "grossWeight",
+    externalField: "gross_weight",
+    transform: "number",
+  },
+  {
+    internalField: "tareWeight",
+    externalField: "tare_weight",
+    transform: "number",
+  },
+  {
+    internalField: "netWeight",
+    externalField: "net_weight",
+    transform: "number",
+  },
+  {
+    internalField: "totalAmount",
+    externalField: "total_amount",
+    transform: "number",
+  },
+  { internalField: "remarks", externalField: "remarks", transform: "string" },
+];
+
+/**
+ * Default field mappings for delivery order item entity
+ */
+export const DEFAULT_DELIVERY_ORDER_ITEM_MAPPINGS: FieldMapping[] = [
+  { internalField: "id", externalField: "id", transform: "number" },
+  {
+    internalField: "doNumber",
+    externalField: "do_number",
+    transform: "string",
+  },
+  {
+    internalField: "deliveryOrderId",
+    externalField: "delivery_order_id",
+    transform: "number",
+  },
+  {
+    internalField: "materialId",
+    externalField: "material_id",
+    transform: "number",
+  },
+  {
+    internalField: "wbNetWeight",
+    externalField: "wb_net_weight",
+    transform: "number",
+  },
+  { internalField: "quantity", externalField: "quantity", transform: "number" },
+  { internalField: "rate", externalField: "rate", transform: "number" },
+  { internalField: "amount", externalField: "amount", transform: "number" },
+];
+
+/**
+ * Default field mappings for transporter entity
+ */
+export const DEFAULT_TRANSPORTER_MAPPINGS: FieldMapping[] = [
+  { internalField: "id", externalField: "id", transform: "number" },
+  {
+    internalField: "transporterName",
+    externalField: "transporter_name",
+    transform: "string",
+  },
+  { internalField: "gstin", externalField: "gstin", transform: "string" },
+  {
+    internalField: "mobileNo",
+    externalField: "mobile_no",
+    transform: "string",
+  },
+  {
+    internalField: "gstState",
+    externalField: "gst_state",
+    transform: "string",
+  },
+  {
+    internalField: "isActive",
+    externalField: "is_active",
+    transform: "boolean",
+  },
+];
+
+/**
  * Field Mapping Service
  * Handles transformation of external database fields to internal model fields
  */
@@ -143,7 +245,13 @@ export class FieldMappingService {
    * Get default mappings for an entity type
    */
   getDefaultMappings(
-    entityType: "vendor" | "purchaseOrder" | "material"
+    entityType:
+      | "vendor"
+      | "purchaseOrder"
+      | "material"
+      | "deliveryOrder"
+      | "deliveryOrderItem"
+      | "transporter"
   ): FieldMapping[] {
     switch (entityType) {
       case "vendor":
@@ -152,6 +260,12 @@ export class FieldMappingService {
         return [...DEFAULT_PO_MAPPINGS];
       case "material":
         return [...DEFAULT_MATERIAL_MAPPINGS];
+      case "deliveryOrder":
+        return [...DEFAULT_DELIVERY_ORDER_MAPPINGS];
+      case "deliveryOrderItem":
+        return [...DEFAULT_DELIVERY_ORDER_ITEM_MAPPINGS];
+      case "transporter":
+        return [...DEFAULT_TRANSPORTER_MAPPINGS];
       default:
         return [];
     }

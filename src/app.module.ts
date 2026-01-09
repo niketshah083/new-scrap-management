@@ -8,6 +8,8 @@ import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.modul
 import { VendorsModule } from "./modules/vendors/vendors.module";
 import { MaterialsModule } from "./modules/materials/materials.module";
 import { PurchaseOrdersModule } from "./modules/purchase-orders/purchase-orders.module";
+import { DeliveryOrdersModule } from "./modules/delivery-orders/delivery-orders.module";
+import { DoProcessingModule } from "./modules/do-processing/do-processing.module";
 import { GRNFieldConfigModule } from "./modules/grn-field-config/grn-field-config.module";
 import { GRNModule } from "./modules/grn/grn.module";
 import { GatePassModule } from "./modules/gate-pass/gate-pass.module";
@@ -25,6 +27,7 @@ import { RFIDModule } from "./modules/rfid/rfid.module";
 import { WeighbridgeModule } from "./modules/weighbridge/weighbridge.module";
 import { CameraModule } from "./modules/camera/camera.module";
 import { DeviceBridgeModule } from "./modules/device-bridge/device-bridge.module";
+import { TransporterModule } from "./modules/transporter/transporter.module";
 import { LogInterceptor } from "./common/interceptors/log.interceptor";
 import { GlobalExceptionFilter } from "./common/filters/global-exception.filter";
 import { PermissionGuard } from "./common/guards/permission.guard";
@@ -48,7 +51,7 @@ import { ResponseInterceptor } from "./common";
         database: configService.get("DB_DATABASE"),
         entities: [__dirname + "/entities/**/*.entity{.ts,.js}"],
         synchronize: configService.get("NODE_ENV") === "development",
-        logging: configService.get("NODE_ENV") === "development",
+        logging: configService.get("NODE_ENV") !== "development",
       }),
       inject: [ConfigService],
     }),
@@ -61,6 +64,8 @@ import { ResponseInterceptor } from "./common";
     VendorsModule,
     MaterialsModule,
     PurchaseOrdersModule,
+    DeliveryOrdersModule,
+    DoProcessingModule,
     GRNFieldConfigModule,
     GRNModule,
     GatePassModule,
@@ -76,6 +81,7 @@ import { ResponseInterceptor } from "./common";
     WeighbridgeModule,
     CameraModule,
     DeviceBridgeModule,
+    TransporterModule,
   ],
   controllers: [],
   providers: [

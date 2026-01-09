@@ -42,6 +42,11 @@ const modules = [
   { name: "Users", code: "USERS", description: "User management" },
   { name: "Roles", code: "ROLES", description: "Role management" },
   { name: "Settings", code: "SETTINGS", description: "System settings" },
+  {
+    name: "Transporter",
+    code: "Transporter",
+    description: "Transporter master management",
+  },
 ];
 
 // Operation definitions
@@ -98,6 +103,7 @@ const plans = [
       "USERS",
       "ROLES",
       "SETTINGS",
+      "Transporter",
     ],
   },
 ];

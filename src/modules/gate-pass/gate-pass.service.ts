@@ -242,6 +242,7 @@ export class GatePassService {
         });
         if (rfidCard) {
           rfidCard.grnId = null;
+          rfidCard.assignmentType = null;
           rfidCard.status = RFIDCardStatus.AVAILABLE;
           rfidCard.assignedAt = null;
           rfidCard.updatedBy = userId;

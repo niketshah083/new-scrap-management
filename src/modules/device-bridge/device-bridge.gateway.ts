@@ -404,4 +404,25 @@ export class DeviceBridgeGateway
       },
     };
   }
+
+  // Test method to send a test weight reading
+  sendTestWeightReading(
+    tenantId: number,
+    weighbridgeId: number,
+    weight: number
+  ) {
+    const tenantRoom = `tenant:${tenantId}`;
+
+    this.server.to(tenantRoom).emit("weight:update", {
+      weighbridgeId: weighbridgeId,
+      weighbridgeName: `Test Weighbridge ${weighbridgeId}`,
+      weight: weight,
+      unit: "kg",
+      isStable: true,
+      timestamp: new Date(),
+      tenantId: tenantId,
+    });
+
+    this.logger.debug(`Test weight sent to tenant ${tenantId}: ${weight} kg`);
+  }
 }

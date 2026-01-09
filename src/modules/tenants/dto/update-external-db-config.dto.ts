@@ -104,6 +104,16 @@ export class UpdateExternalDbConfigDto {
   externalDbMaterialTable?: string;
 
   @ApiProperty({
+    description: "External database delivery order table name",
+    example: "delivery_orders",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  externalDbDeliveryOrderTable?: string;
+
+  @ApiProperty({
     description: "Cache TTL in seconds",
     example: 300,
     required: false,
@@ -146,4 +156,151 @@ export class UpdateExternalDbConfigDto {
   @ValidateNested({ each: true })
   @Type(() => FieldMappingDto)
   externalDbMaterialMappings?: FieldMappingDto[];
+
+  @ApiProperty({
+    description: "Field mappings for delivery order entity",
+    type: [FieldMappingDto],
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => FieldMappingDto)
+  externalDbDeliveryOrderMappings?: FieldMappingDto[];
+
+  @ApiProperty({
+    description: "External database delivery order item table name",
+    example: "delivery_order_items",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  externalDbDeliveryOrderItemTable?: string;
+
+  @ApiProperty({
+    description: "Relation key for linking DO to items (e.g., doNumber or id)",
+    example: "doNumber",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoItemRelationKey?: string;
+
+  @ApiProperty({
+    description: "Field mappings for delivery order item entity",
+    type: [FieldMappingDto],
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => FieldMappingDto)
+  externalDbDeliveryOrderItemMappings?: FieldMappingDto[];
+
+  // Vendor Join Configuration for Delivery Orders
+  @ApiProperty({
+    description: "Vendor table name for DO join (e.g., acmast)",
+    example: "acmast",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  externalDbDoVendorTable?: string;
+
+  @ApiProperty({
+    description: "Foreign key in DO table pointing to vendor (e.g., party)",
+    example: "party",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoVendorFk?: string;
+
+  @ApiProperty({
+    description: "Primary key in vendor table (e.g., id)",
+    example: "id",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoVendorPk?: string;
+
+  @ApiProperty({
+    description: "Vendor name field in vendor table (e.g., acname, name)",
+    example: "acname",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoVendorNameField?: string;
+
+  // Material Join Configuration for DO Items
+  @ApiProperty({
+    description: "Material table name for DO item join (e.g., item)",
+    example: "item",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  externalDbDoItemMaterialTable?: string;
+
+  @ApiProperty({
+    description:
+      "Foreign key in DO items table pointing to material (e.g., itemcode)",
+    example: "itemcode",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoItemMaterialFk?: string;
+
+  @ApiProperty({
+    description: "Primary key in material table (e.g., itemcode)",
+    example: "itemcode",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoItemMaterialPk?: string;
+
+  @ApiProperty({
+    description: "Material name field in material table (e.g., itemname)",
+    example: "itemname",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  externalDbDoItemMaterialNameField?: string;
+
+  // Transporter Configuration
+  @ApiProperty({
+    description: "External database transporter table name",
+    example: "transporters",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  externalDbTransporterTable?: string;
+
+  @ApiProperty({
+    description: "Field mappings for transporter entity",
+    type: [FieldMappingDto],
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => FieldMappingDto)
+  externalDbTransporterMappings?: FieldMappingDto[];
 }

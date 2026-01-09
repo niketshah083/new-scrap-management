@@ -200,10 +200,30 @@ export class TenantsService {
       externalDbVendorTable: tenant.externalDbVendorTable,
       externalDbPoTable: tenant.externalDbPoTable,
       externalDbMaterialTable: tenant.externalDbMaterialTable,
+      externalDbDeliveryOrderTable: tenant.externalDbDeliveryOrderTable,
+      externalDbDeliveryOrderItemTable: tenant.externalDbDeliveryOrderItemTable,
+      externalDbDoItemRelationKey: tenant.externalDbDoItemRelationKey,
       externalDbCacheTtl: tenant.externalDbCacheTtl,
       externalDbVendorMappings: tenant.externalDbVendorMappings,
       externalDbPoMappings: tenant.externalDbPoMappings,
       externalDbMaterialMappings: tenant.externalDbMaterialMappings,
+      externalDbDeliveryOrderMappings: tenant.externalDbDeliveryOrderMappings,
+      externalDbDeliveryOrderItemMappings:
+        tenant.externalDbDeliveryOrderItemMappings,
+      // Vendor join config for DO
+      externalDbDoVendorTable: tenant.externalDbDoVendorTable,
+      externalDbDoVendorFk: tenant.externalDbDoVendorFk,
+      externalDbDoVendorPk: tenant.externalDbDoVendorPk,
+      externalDbDoVendorNameField: tenant.externalDbDoVendorNameField,
+      // Material join config for DO items
+      externalDbDoItemMaterialTable: tenant.externalDbDoItemMaterialTable,
+      externalDbDoItemMaterialFk: tenant.externalDbDoItemMaterialFk,
+      externalDbDoItemMaterialPk: tenant.externalDbDoItemMaterialPk,
+      externalDbDoItemMaterialNameField:
+        tenant.externalDbDoItemMaterialNameField,
+      // Transporter config
+      externalDbTransporterTable: tenant.externalDbTransporterTable,
+      externalDbTransporterMappings: tenant.externalDbTransporterMappings,
       hasPassword: !!tenant.externalDbPassword,
     };
   }
@@ -249,6 +269,10 @@ export class TenantsService {
     if (updateDto.externalDbMaterialTable !== undefined) {
       tenant.externalDbMaterialTable = updateDto.externalDbMaterialTable;
     }
+    if (updateDto.externalDbDeliveryOrderTable !== undefined) {
+      tenant.externalDbDeliveryOrderTable =
+        updateDto.externalDbDeliveryOrderTable;
+    }
     if (updateDto.externalDbCacheTtl !== undefined) {
       tenant.externalDbCacheTtl = updateDto.externalDbCacheTtl;
     }
@@ -260,6 +284,59 @@ export class TenantsService {
     }
     if (updateDto.externalDbMaterialMappings !== undefined) {
       tenant.externalDbMaterialMappings = updateDto.externalDbMaterialMappings;
+    }
+    if (updateDto.externalDbDeliveryOrderMappings !== undefined) {
+      tenant.externalDbDeliveryOrderMappings =
+        updateDto.externalDbDeliveryOrderMappings;
+    }
+    if (updateDto.externalDbDeliveryOrderItemTable !== undefined) {
+      tenant.externalDbDeliveryOrderItemTable =
+        updateDto.externalDbDeliveryOrderItemTable;
+    }
+    if (updateDto.externalDbDoItemRelationKey !== undefined) {
+      tenant.externalDbDoItemRelationKey =
+        updateDto.externalDbDoItemRelationKey;
+    }
+    if (updateDto.externalDbDeliveryOrderItemMappings !== undefined) {
+      tenant.externalDbDeliveryOrderItemMappings =
+        updateDto.externalDbDeliveryOrderItemMappings;
+    }
+    // Vendor join configuration for DO
+    if (updateDto.externalDbDoVendorTable !== undefined) {
+      tenant.externalDbDoVendorTable = updateDto.externalDbDoVendorTable;
+    }
+    if (updateDto.externalDbDoVendorFk !== undefined) {
+      tenant.externalDbDoVendorFk = updateDto.externalDbDoVendorFk;
+    }
+    if (updateDto.externalDbDoVendorPk !== undefined) {
+      tenant.externalDbDoVendorPk = updateDto.externalDbDoVendorPk;
+    }
+    if (updateDto.externalDbDoVendorNameField !== undefined) {
+      tenant.externalDbDoVendorNameField =
+        updateDto.externalDbDoVendorNameField;
+    }
+    // Material join configuration for DO items
+    if (updateDto.externalDbDoItemMaterialTable !== undefined) {
+      tenant.externalDbDoItemMaterialTable =
+        updateDto.externalDbDoItemMaterialTable;
+    }
+    if (updateDto.externalDbDoItemMaterialFk !== undefined) {
+      tenant.externalDbDoItemMaterialFk = updateDto.externalDbDoItemMaterialFk;
+    }
+    if (updateDto.externalDbDoItemMaterialPk !== undefined) {
+      tenant.externalDbDoItemMaterialPk = updateDto.externalDbDoItemMaterialPk;
+    }
+    if (updateDto.externalDbDoItemMaterialNameField !== undefined) {
+      tenant.externalDbDoItemMaterialNameField =
+        updateDto.externalDbDoItemMaterialNameField;
+    }
+    // Transporter configuration
+    if (updateDto.externalDbTransporterTable !== undefined) {
+      tenant.externalDbTransporterTable = updateDto.externalDbTransporterTable;
+    }
+    if (updateDto.externalDbTransporterMappings !== undefined) {
+      tenant.externalDbTransporterMappings =
+        updateDto.externalDbTransporterMappings;
     }
 
     tenant.updatedBy = userId;

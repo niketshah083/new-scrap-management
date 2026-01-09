@@ -10,6 +10,11 @@ export enum RFIDCardStatus {
   LOST = "lost",
 }
 
+export enum RFIDCardAssignmentType {
+  GRN = "grn",
+  DO_PROCESSING = "do_processing",
+}
+
 @Entity("rfid_cards")
 export class RFIDCard extends BaseEntity {
   @Column({ name: "tenant_id" })
@@ -24,6 +29,17 @@ export class RFIDCard extends BaseEntity {
 
   @Column({ name: "grn_id", nullable: true })
   grnId: number | null;
+
+  @Column({ name: "do_processing_id", nullable: true })
+  doProcessingId: number | null;
+
+  @Column({
+    name: "assignment_type",
+    type: "enum",
+    enum: RFIDCardAssignmentType,
+    nullable: true,
+  })
+  assignmentType: RFIDCardAssignmentType | null;
 
   @Column({
     type: "enum",

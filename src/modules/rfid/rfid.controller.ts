@@ -70,8 +70,11 @@ export class RFIDController {
   }
 
   @Get("available")
-  @RolePermission(`${ModuleCode.RFID}:${OperationCode.List}`)
-  @ApiOperation({ summary: "Get all available RFID cards" })
+  @RolePermission(
+    `${ModuleCode.RFID}:${OperationCode.List}`,
+    `${ModuleCode.RFID}:${OperationCode.Assign}`
+  )
+  @ApiOperation({ summary: "Get all available RFID cards for assignment" })
   @ApiResponse({
     status: 200,
     description: "Available RFID cards retrieved successfully",
@@ -144,7 +147,7 @@ export class RFIDController {
 
   @Post("assign")
   @RolePermission(`${ModuleCode.RFID}:${OperationCode.Assign}`)
-  @ApiOperation({ summary: "Assign an RFID card to a GRN" })
+  @ApiOperation({ summary: "Assign an RFID card to a GRN or DO Processing" })
   @ApiResponse({ status: 200, description: "RFID card assigned successfully" })
   async assign(
     @Body() assignDto: AssignRFIDCardDto,
@@ -155,16 +158,23 @@ export class RFIDController {
       assignDto,
       req.user.userId
     );
+    const assignedTo = data.grn
+      ? `GRN ${data.grn.grnNumber}`
+      : data.doProcessing
+        ? `DO Processing ${data.doProcessing.doNumber}`
+        : "unknown";
     return {
       success: true,
-      message: "RFID card assigned to GRN successfully",
+      message: `RFID card assigned to ${assignedTo} successfully`,
       data,
     };
   }
 
   @Post("unassign/:cardNumber")
   @RolePermission(`${ModuleCode.RFID}:${OperationCode.Assign}`)
-  @ApiOperation({ summary: "Unassign an RFID card from its GRN" })
+  @ApiOperation({
+    summary: "Unassign an RFID card from its GRN or DO Processing",
+  })
   @ApiResponse({
     status: 200,
     description: "RFID card unassigned successfully",
@@ -187,7 +197,9 @@ export class RFIDController {
 
   @Post("scan")
   @RolePermission(`${ModuleCode.RFID}:${OperationCode.Scan}`)
-  @ApiOperation({ summary: "Scan an RFID card and get linked GRN" })
+  @ApiOperation({
+    summary: "Scan an RFID card and get linked GRN or DO Processing",
+  })
   @ApiResponse({ status: 200, description: "RFID card scanned successfully" })
   async scan(@Body() scanDto: ScanRFIDCardDto, @Req() req: RequestWithUser) {
     const data = await this.rfidService.scan(
@@ -195,11 +207,15 @@ export class RFIDController {
       scanDto,
       req.user.userId
     );
+    let message = "RFID card scanned - Not assigned";
+    if (data.grn) {
+      message = `RFID card scanned - GRN ${data.grn.grnNumber} found`;
+    } else if (data.doProcessing) {
+      message = `RFID card scanned - DO Processing ${data.doProcessing.doNumber} found`;
+    }
     return {
       success: true,
-      message: data.grn
-        ? "RFID card scanned - GRN found"
-        : "RFID card scanned - No GRN linked",
+      message,
       data,
     };
   }

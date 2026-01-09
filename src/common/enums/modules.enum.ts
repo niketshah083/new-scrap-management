@@ -4,6 +4,8 @@ export enum ModuleCode {
   Vendor = "Vendor",
   Material = "Material",
   PurchaseOrder = "PurchaseOrder",
+  DeliveryOrder = "DeliveryOrder",
+  DoProcessing = "DoProcessing",
   GRN = "GRN",
   GRNFieldConfig = "GRNFieldConfig",
   QC = "QC",
@@ -22,6 +24,7 @@ export enum ModuleCode {
   RFID = "RFID",
   Weighbridge = "Weighbridge",
   Camera = "Camera",
+  Transporter = "Transporter",
 }
 
 export const ModuleDefinitions: Record<
@@ -43,6 +46,14 @@ export const ModuleDefinitions: Record<
   [ModuleCode.PurchaseOrder]: {
     name: "Purchase Orders",
     description: "Purchase order management",
+  },
+  [ModuleCode.DeliveryOrder]: {
+    name: "Delivery Orders",
+    description: "Delivery order management",
+  },
+  [ModuleCode.DoProcessing]: {
+    name: "DO Processing",
+    description: "Delivery order processing and weighing",
   },
   [ModuleCode.GRN]: {
     name: "GRN",
@@ -115,5 +126,9 @@ export const ModuleDefinitions: Record<
   [ModuleCode.Camera]: {
     name: "Camera",
     description: "Camera device management and configuration",
+  },
+  [ModuleCode.Transporter]: {
+    name: "Transporter",
+    description: "Transporter master management",
   },
 };
