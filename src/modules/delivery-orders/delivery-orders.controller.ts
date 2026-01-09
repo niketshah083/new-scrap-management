@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   ParseIntPipe,
   Req,
 } from "@nestjs/common";
@@ -14,9 +15,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiQuery,
 } from "@nestjs/swagger";
 import { DeliveryOrdersService } from "./delivery-orders.service";
-import { CreateDeliveryOrderDto, UpdateDeliveryOrderDto } from "./dto";
+import {
+  CreateDeliveryOrderDto,
+  UpdateDeliveryOrderDto,
+  DeliveryOrderQueryDto,
+} from "./dto";
 import { RolePermission } from "../../common/decorators/role-permission.decorator";
 import { RequestWithUser } from "../../common/middleware/verify-token.middleware";
 import { ModuleCode } from "../../common/enums/modules.enum";
@@ -98,6 +104,42 @@ export class DeliveryOrdersController {
         success: true,
         message: "Delivery orders retrieved successfully",
         data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get("from-data-source/paginated")
+  @RolePermission(`${ModuleCode.DeliveryOrder}:${OperationCode.List}`)
+  @ApiOperation({
+    summary:
+      "Get delivery orders with pagination from data source (internal or external)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Delivery orders retrieved successfully with pagination",
+  })
+  async findAllFromDataSourcePaginated(
+    @Query() query: DeliveryOrderQueryDto,
+    @Req() req: RequestWithUser
+  ) {
+    try {
+      const result =
+        await this.deliveryOrdersService.findAllFromDataSourcePaginated(
+          req.user.tenantId,
+          query
+        );
+      return {
+        success: true,
+        message: "Delivery orders retrieved successfully",
+        data: result.data,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
       };
     } catch (error) {
       throw error;

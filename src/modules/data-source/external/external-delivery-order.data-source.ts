@@ -7,6 +7,8 @@ import {
   IDeliveryOrderDataSource,
   DeliveryOrderDto,
   DeliveryOrderItemDto,
+  PaginatedResult,
+  PaginationQuery,
 } from "../interfaces";
 import { FieldMappingService } from "../services/field-mapping.service";
 import { CacheService } from "../services/cache.service";
@@ -51,6 +53,161 @@ export class ExternalDeliveryOrderDataSource implements IDeliveryOrderDataSource
     private readonly fieldMappingService: FieldMappingService,
     private readonly cacheService: CacheService
   ) {}
+
+  /**
+   * Find all delivery orders from external database with pagination
+   */
+  async findAllPaginated(
+    tenantId: number,
+    query: PaginationQuery,
+    config?: DeliveryOrderConfig
+  ): Promise<PaginatedResult<DeliveryOrderDto>> {
+    if (!config) {
+      throw new Error("External database configuration is required");
+    }
+
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const offset = (page - 1) * limit;
+
+    try {
+      // Build base query parts
+      const tableAlias = "d";
+      let selectClause = `${tableAlias}.*`;
+      let fromClause = `${config.tableName} ${tableAlias}`;
+      let whereConditions: string[] = [];
+      const params: any[] = [];
+
+      // Add vendor join if configured
+      if (config.vendorJoin) {
+        const vj = config.vendorJoin;
+        selectClause += `, v.${vj.nameField} as _vendorName`;
+        fromClause += ` LEFT JOIN ${vj.tableName} v ON ${tableAlias}.${vj.foreignKey} = v.${vj.primaryKey}`;
+      }
+
+      // Apply search filter
+      if (query.search) {
+        const doNumberField = this.fieldMappingService.getExternalField(
+          config.mappings,
+          "doNumber"
+        );
+        const vehicleNoField = this.fieldMappingService.getExternalField(
+          config.mappings,
+          "vehicleNo"
+        );
+
+        const searchConditions = [`${tableAlias}.${doNumberField} LIKE ?`];
+        params.push(`%${query.search}%`);
+
+        if (vehicleNoField) {
+          searchConditions.push(`${tableAlias}.${vehicleNoField} LIKE ?`);
+          params.push(`%${query.search}%`);
+        }
+
+        if (config.vendorJoin) {
+          searchConditions.push(`v.${config.vendorJoin.nameField} LIKE ?`);
+          params.push(`%${query.search}%`);
+        }
+
+        whereConditions.push(`(${searchConditions.join(" OR ")})`);
+      }
+
+      // Apply vendor filter
+      if (query.vendorId) {
+        const vendorIdField = this.fieldMappingService.getExternalField(
+          config.mappings,
+          "vendorId"
+        );
+        whereConditions.push(`${tableAlias}.${vendorIdField} = ?`);
+        params.push(query.vendorId);
+      }
+
+      // Apply date range filter
+      if (query.startDate || query.endDate) {
+        const doDateField = this.fieldMappingService.getExternalField(
+          config.mappings,
+          "doDate"
+        );
+        if (query.startDate) {
+          whereConditions.push(`${tableAlias}.${doDateField} >= ?`);
+          params.push(query.startDate);
+        }
+        if (query.endDate) {
+          whereConditions.push(`${tableAlias}.${doDateField} <= ?`);
+          params.push(query.endDate);
+        }
+      }
+
+      // Build WHERE clause
+      const whereClause =
+        whereConditions.length > 0
+          ? `WHERE ${whereConditions.join(" AND ")}`
+          : "";
+
+      // Build ORDER BY clause
+      const sortField = query.sortField || "doDate";
+      const sortOrder =
+        query.sortOrder?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+      const externalSortField =
+        this.fieldMappingService.getExternalField(config.mappings, sortField) ||
+        this.fieldMappingService.getExternalField(config.mappings, "doDate");
+      const orderByClause = `ORDER BY ${tableAlias}.${externalSortField} ${sortOrder}`;
+
+      // Get total count
+      const countQuery = `SELECT COUNT(*) as total FROM ${fromClause} ${whereClause}`;
+      const countResult = await this.connectionService.executeQuery<any>(
+        tenantId,
+        config.dbConfig,
+        countQuery,
+        params
+      );
+      const total = parseInt(countResult[0]?.total || "0", 10);
+
+      // Get paginated data
+      const dataQuery = `SELECT ${selectClause} FROM ${fromClause} ${whereClause} ${orderByClause} LIMIT ? OFFSET ?`;
+      const dataParams = [...params, limit, offset];
+
+      this.logger.debug(`Executing paginated query: ${dataQuery}`, {
+        params: dataParams,
+      });
+
+      const rows = await this.connectionService.executeQuery<any>(
+        tenantId,
+        config.dbConfig,
+        dataQuery,
+        dataParams
+      );
+
+      // Map delivery orders
+      const deliveryOrders = rows.map((row) =>
+        this.mapToDto(row, config.mappings, config.vendorJoin)
+      );
+
+      // Fetch items for all delivery orders if item config is provided
+      if (config.itemConfig && deliveryOrders.length > 0) {
+        await this.fetchItemsForOrders(
+          tenantId,
+          deliveryOrders,
+          config.dbConfig,
+          config.itemConfig
+        );
+      }
+
+      return {
+        data: deliveryOrders,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch paginated delivery orders from external DB for tenant ${tenantId}`,
+        error.stack
+      );
+      throw new Error(`External database unavailable: ${error.message}`);
+    }
+  }
 
   /**
    * Find all delivery orders from external database

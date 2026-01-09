@@ -9,7 +9,12 @@ import { DeliveryOrder } from "../../entities/delivery-order.entity";
 import { DeliveryOrderItem } from "../../entities/delivery-order-item.entity";
 import { Vendor } from "../../entities/vendor.entity";
 import { Material } from "../../entities/material.entity";
-import { CreateDeliveryOrderDto, UpdateDeliveryOrderDto } from "./dto";
+import {
+  CreateDeliveryOrderDto,
+  UpdateDeliveryOrderDto,
+  DeliveryOrderQueryDto,
+  PaginatedResult,
+} from "./dto";
 import { DataSourceFactoryService, DeliveryOrderDto } from "../data-source";
 
 @Injectable()
@@ -116,6 +121,25 @@ export class DeliveryOrdersService {
    */
   async findAllFromDataSource(tenantId: number): Promise<DeliveryOrderDto[]> {
     return this.dataSourceFactory.getDeliveryOrders(tenantId);
+  }
+
+  /**
+   * Find all delivery orders with pagination - uses external DB if configured
+   */
+  async findAllFromDataSourcePaginated(
+    tenantId: number,
+    query: DeliveryOrderQueryDto
+  ): Promise<PaginatedResult<DeliveryOrderDto>> {
+    return this.dataSourceFactory.getDeliveryOrdersPaginated(tenantId, {
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      vendorId: query.vendorId,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      sortField: query.sortField,
+      sortOrder: query.sortOrder,
+    });
   }
 
   /**

@@ -1,8 +1,20 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, In } from "typeorm";
+import {
+  Repository,
+  In,
+  Like,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from "typeorm";
 import { DeliveryOrder } from "../../../entities/delivery-order.entity";
-import { IDeliveryOrderDataSource, DeliveryOrderDto } from "../interfaces";
+import {
+  IDeliveryOrderDataSource,
+  DeliveryOrderDto,
+  PaginatedResult,
+  PaginationQuery,
+} from "../interfaces";
 
 /**
  * Internal Delivery Order Data Source
@@ -16,6 +28,87 @@ export class InternalDeliveryOrderDataSource implements IDeliveryOrderDataSource
     @InjectRepository(DeliveryOrder)
     private readonly deliveryOrderRepository: Repository<DeliveryOrder>
   ) {}
+
+  /**
+   * Find all delivery orders from internal database with pagination
+   */
+  async findAllPaginated(
+    tenantId: number,
+    query: PaginationQuery
+  ): Promise<PaginatedResult<DeliveryOrderDto>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.deliveryOrderRepository
+      .createQueryBuilder("do")
+      .leftJoinAndSelect("do.vendor", "vendor")
+      .leftJoinAndSelect("do.items", "items")
+      .leftJoinAndSelect("items.material", "material")
+      .where("do.tenantId = :tenantId", { tenantId });
+
+    // Apply search filter
+    if (query.search) {
+      queryBuilder.andWhere(
+        "(do.doNumber LIKE :search OR vendor.companyName LIKE :search OR do.vehicleNo LIKE :search)",
+        { search: `%${query.search}%` }
+      );
+    }
+
+    // Apply vendor filter
+    if (query.vendorId) {
+      queryBuilder.andWhere("do.vendorId = :vendorId", {
+        vendorId: query.vendorId,
+      });
+    }
+
+    // Apply date range filter
+    if (query.startDate) {
+      queryBuilder.andWhere("do.doDate >= :startDate", {
+        startDate: query.startDate,
+      });
+    }
+    if (query.endDate) {
+      queryBuilder.andWhere("do.doDate <= :endDate", {
+        endDate: query.endDate,
+      });
+    }
+
+    // Apply sorting
+    const sortField = query.sortField || "doDate";
+    const sortOrder = query.sortOrder?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+    // Map sort field to actual column
+    const sortFieldMap: Record<string, string> = {
+      doNumber: "do.doNumber",
+      doDate: "do.doDate",
+      vendorName: "vendor.companyName",
+      vehicleNo: "do.vehicleNo",
+      totalAmount: "do.totalAmount",
+      netWeight: "do.netWeight",
+      createdAt: "do.createdAt",
+    };
+
+    const actualSortField = sortFieldMap[sortField] || "do.doDate";
+    queryBuilder.orderBy(actualSortField, sortOrder as "ASC" | "DESC");
+
+    // Get total count
+    const total = await queryBuilder.getCount();
+
+    // Apply pagination
+    queryBuilder.skip(skip).take(limit);
+
+    // Execute query
+    const deliveryOrders = await queryBuilder.getMany();
+
+    return {
+      data: deliveryOrders.map((dOrder) => this.mapToDto(dOrder)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 
   /**
    * Find all delivery orders from internal database

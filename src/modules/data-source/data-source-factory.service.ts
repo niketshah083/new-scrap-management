@@ -15,6 +15,8 @@ import {
   MaterialDto,
   DeliveryOrderDto,
   TransporterDto,
+  PaginatedResult,
+  PaginationQuery,
 } from "./interfaces";
 import { InternalVendorDataSource } from "./internal/internal-vendor.data-source";
 import { InternalPurchaseOrderDataSource } from "./internal/internal-purchase-order.data-source";
@@ -236,6 +238,30 @@ export class DataSourceFactoryService {
     }
 
     return this.internalDeliveryOrderDataSource.findAll(tenantId, filters);
+  }
+
+  /**
+   * Get delivery orders for a tenant with pagination
+   */
+  async getDeliveryOrdersPaginated(
+    tenantId: number,
+    query: PaginationQuery
+  ): Promise<PaginatedResult<DeliveryOrderDto>> {
+    const tenant = await this.getTenant(tenantId);
+
+    if (this.shouldUseExternalDb(tenant)) {
+      const config = this.getExternalConfig(tenant, "deliveryOrder");
+      return this.externalDeliveryOrderDataSource.findAllPaginated(
+        tenantId,
+        query,
+        config
+      );
+    }
+
+    return this.internalDeliveryOrderDataSource.findAllPaginated(
+      tenantId,
+      query
+    );
   }
 
   /**

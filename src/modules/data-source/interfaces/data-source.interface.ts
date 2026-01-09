@@ -19,6 +19,31 @@ export interface IDataSource<T> {
 }
 
 /**
+ * Paginated result interface
+ */
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/**
+ * Pagination query parameters
+ */
+export interface PaginationQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
+  startDate?: string;
+  endDate?: string;
+  [key: string]: any;
+}
+
+/**
  * Vendor DTO for data source operations
  */
 export interface VendorDto {
@@ -127,6 +152,15 @@ export interface IDeliveryOrderDataSource extends IDataSource<DeliveryOrderDto> 
     tenantId: number,
     vendorId: number | string
   ): Promise<DeliveryOrderDto[]>;
+
+  /**
+   * Find delivery orders with pagination
+   */
+  findAllPaginated(
+    tenantId: number,
+    query: PaginationQuery,
+    config?: any
+  ): Promise<PaginatedResult<DeliveryOrderDto>>;
 }
 
 /**
